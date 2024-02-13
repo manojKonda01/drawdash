@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw Dash</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="roomForm">
+        <input type="text" id="roomName" placeholder="Enter room name">
+        <input type="text" id="playerName" placeholder="Enter your name">
+        <button onclick="joinRoom()">Join Room</button>
+    </div>
+    <div id="gameArea" style="display: none;">
+        <div id="wordDisplay"></div>
+        <canvas id="wordCanvas" width="800" height="600"></canvas>
+        <span>Draw: </span><span id="guess_word"></span>
+        <div>
+            <input type="text" id="guessInput" placeholder="Enter your guess">
+        </div>
+        <div id="guessDisplay"></div>
+        <button onclick="submitGuess()">Submit Guess</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <script src="client.js"></script>
+</body>
+</html>
