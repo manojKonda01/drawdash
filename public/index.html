@@ -14,12 +14,13 @@
     </div>
     <div id="gameArea" style="display: none;">
         <div id="wordDisplay"></div>
-        <canvas id="wordCanvas" width="800" height="600"></canvas>
-        <span>Draw: </span><span id="guess_word"></span>
+        <canvas id="wordCanvas"></canvas>
+        <span id="guess_word"></span>
         <div>
             <input type="text" id="guessInput" placeholder="Enter your guess">
         </div>
         <div id="guessDisplay"></div>
+        <div id="timer">30</div>
         <button onclick="submitGuess()">Submit Guess</button>
     </div>
 

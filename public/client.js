@@ -1,13 +1,13 @@
 const socket = io();
 
-let roomName;
+let roomID;
 let playerName;
 
 function joinRoom() {
-    roomName = document.getElementById('roomName').value;
+    roomID = document.getElementById('roomID').value;
     playerName = document.getElementById('playerName').value;
 
-    socket.emit('joinRoom', roomName, playerName);
+    socket.emit('joinRoom', roomID, playerName);
     // Listen for the 'startRound' event from the server
     
     document.getElementById('roomForm').style.display = 'none';
@@ -20,22 +20,86 @@ function joinRoom() {
     let isDrawing = false;
     let lastX = 0;
     let lastY = 0;
+    // let currentDrawerId;
+
     // Receive the word from the server and display it in the canvas
-    socket.on('newRound', ({ word, drawerId}) => {
+    socket.on('newRound', ({ word, drawerId, roundTime}) => {
         
         // Clear the canvas
         const guess_word_element = document.getElementById('guess_word');
         guess_word_element.innerHTML = '';
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const isDrawer = socket.id === drawerId;
-        if (isDrawer) {
-            guess_word_element.innerHTML = word;
+        if (socket.id === drawerId) {
+            guess_word_element.innerHTML = 'Draw :'+word;
+            // to draw on mouse events
             canvas.addEventListener('mousedown', startDrawing);
             canvas.addEventListener('mousemove', draw);
             canvas.addEventListener('mouseup', stopDrawing);
             canvas.addEventListener('mouseout', stopDrawing);
+
+            // to draw on touch events
+            canvas.addEventListener('touchstart', handleTouchStart, false);
+            canvas.addEventListener('touchmove', handleTouchMove, false);
+            canvas.addEventListener('touchend', handleTouchEnd, false);
         }
+        else {
+            // Disable drawing for non-current drawers
+            canvas.removeEventListener('mousedown', startDrawing);
+            canvas.removeEventListener('mousemove', draw);
+            canvas.removeEventListener('mouseup', stopDrawing);
+            canvas.removeEventListener('mouseout', stopDrawing);
+    
+            canvas.removeEventListener('touchstart', handleTouchStart, false);
+            canvas.removeEventListener('touchmove', handleTouchMove, false);
+            canvas.removeEventListener('touchend', handleTouchEnd, false);
+        }
+        startTimer(roundTime); // Start timer with 30 seconds
     });
+
+     // Function to start the timer
+     function startTimer(seconds) {
+        let timer = seconds;
+        const timerElement = document.getElementById('timer');
+
+        // Update the timer every second
+        const countdown = setInterval(() => {
+            timer--;
+            timerElement.textContent = timer;
+
+            // If the timer reaches 0, clear the interval
+            if (timer <= 0) {
+                clearInterval(countdown);
+                // Perform any actions when the timer expires (e.g., end of round)
+            }
+        }, 1000);
+    }
+    // BEGIN: functions to handle drawing using touch on mobile phones or touch screen devices 
+    function handleTouchStart(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        lastX = touch.pageX - canvas.offsetLeft;
+        lastY = touch.pageY - canvas.offsetTop;
+        startDrawing();
+    }
+
+    function handleTouchMove(e) {
+        e.preventDefault();
+        if (!isDrawing) return;
+        const touch = e.touches[0];
+        const startX = lastX;
+        const startY = lastY;
+        const endX = touch.pageX - canvas.offsetLeft;
+        const endY = touch.pageY - canvas.offsetTop;
+        drawLine(startX, startY, endX, endY);
+        socket.emit('drawing', { startX, startY, endX, endY, roomID });
+        [lastX, lastY] = [endX, endY];
+    }
+
+    function handleTouchEnd(e) {
+        e.preventDefault();
+        stopDrawing();
+    }
+    // END: functions to handle drawing using touch on mobile phones or touch screen devices 
 
     // Function to start drawing
     function startDrawing(e) {
@@ -50,14 +114,14 @@ function joinRoom() {
         const endX = e.offsetX;
         const endY = e.offsetY;
         drawLine(startX, startY, endX, endY);
-        socket.emit('drawing', { startX, startY, endX, endY, roomName });
+        socket.emit('drawing', { startX, startY, endX, endY, roomID });
         [lastX, lastY] = [endX, endY];
     }
 
     // Function to draw a line on the canvas
     function drawLine(startX, startY, endX, endY) {
-        // const canvas = document.getElementById('wordCanvas');
-        // const ctx = canvas.getContext('2d');
+        const canvas = document.getElementById('wordCanvas');
+        const ctx = canvas.getContext('2d');
         // Start a new path
         ctx.beginPath();
         
@@ -103,5 +167,5 @@ function joinRoom() {
 function submitGuess() {
     const guess = document.getElementById('guessInput').value;
     playerName = document.getElementById('playerName').value;
-    socket.emit('guess', roomName, playerName, guess);
+    socket.emit('guess', roomID, playerName, guess);
 }
