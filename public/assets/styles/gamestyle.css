@@ -1,0 +1,192 @@
+@font-face {
+    font-family: 'sports-world';
+    src: url('/assets/fonts/sports_world/Sports_World_Regular.otf') format('opentype');
+}
+
+body {
+    background-image: url('/media/images/main_mixed.png');
+    background-repeat: no-repeat;
+    /* background-size: cover; */
+    background-attachment: fixed;
+    background-size: 100% 100%, 100% 100%;
+}
+.setting-img{
+    background-image: url('/media/images/setting-white.png');
+    background-repeat: no-repeat;
+}
+#game_banner {
+    border: 1rem solid #F7941D;
+    background-color: #343432;
+    padding: 0.5rem;
+    width: 50%;
+    animation: popOut 0.35s ease forwards; /* Pop-out animation */
+}
+@keyframes popOut {
+    0%{
+        transform: scale(0);
+    }
+    50%{
+        transform: scale(1.5);
+    }
+    100%{
+        transform: scale(1);
+    }
+}
+.full-height {
+    height: 100vh;
+}
+
+.center-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.board-top,
+.board-head {
+    align-items: center;
+    justify-content: center;
+}
+
+.board-head {
+    background-color: #F7941D;
+    height: 2rem;
+    display: flex;
+}
+
+.white-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: white;
+    border-radius: 50%;
+}
+
+.l-dot {
+    margin-right: auto;
+}
+
+.r-dot {
+    margin-left: auto;
+}
+
+#sound_on,
+#sound_off, .setting-img{
+    cursor: pointer;
+}
+
+.modal-title, .modal-footer{
+    font-family: 'sports-world';
+}
+.mode-container{
+    align-items: stretch;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+.mode-btn{
+    flex: 1 0 30%;
+    background: none;
+    color: white;
+    cursor: pointer;
+    margin: 0 2rem;
+    transition: transform 0.01s ease;
+}
+.mode-btn:hover{
+    transform: scale(1.2);
+}
+
+.mode-btn:hover .mode-txt{
+    background-color: white;
+    color: black;
+}
+.mode-txt{
+    border: 1px solid white;
+    border-radius: 0.5rem;
+    font-family: 'sports-world';
+}
+.canvas-container, .type-guess-container{
+    margin-left: 2rem;
+    margin-right: 2rem;
+}
+.canvas-container{
+    margin-top: 4rem;
+    margin-bottom: 1.5rem;
+}
+canvas{
+    cursor: pointer;
+}
+.canvas-board, .type-guess{
+    width: 70%;
+    height: 60vh;
+    border: 1px solid black;
+    background-color: white;
+}
+.type-guess{
+    height: 3rem;
+    padding: 0 1rem;
+}
+.image-submit{
+    position: relative;
+    left: -48px;
+    width: 48px;
+    padding: 0.5rem;
+    border-left: 0;
+}
+.type-guess:focus{
+    outline: none;
+}
+.custom-lg {
+    font-size: 64px;
+}
+.custom-btn{
+    color: #FFDB01;
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #F70F18;
+    --bs-btn-border-color: #F70F18;
+    --bs-btn-hover-color: #FFDB01;
+    --bs-btn-hover-bg: #F70F18;
+    --bs-btn-hover-border-color: #F70F18;
+    --bs-btn-focus-shadow-rgb: 225,83,97;
+    --bs-btn-active-color: #FFDB01;
+    --bs-btn-active-bg: #F70F18;
+    --bs-btn-active-border-color: #F70F18;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #FFDB01;
+    --bs-btn-disabled-bg: #F70F18;
+    --bs-btn-disabled-border-color: #F70F18;
+}
+@media (max-width: 767px) {
+    body {
+        background-image: url('/media/images/floor.png'), url('/media/images/pd_background.svg');
+    }
+    .setting-img{
+        background-image: url('/media/images/setting-black.png');
+        background-repeat: no-repeat;
+    }
+    .custom-lg {
+        font-size: 48px;
+    }
+
+    #game_banner {
+        min-width: 95%;
+    }
+    .canvas-board{
+        height: 60vh;
+        width: 100%;
+    }
+    .type-guess{
+        width: 100%;
+        border-right: 0;
+    }
+    .image-submit{
+        position: relative;
+        left: 0;
+        border: 1px solid black;
+        border-left: 0;
+        background-color: white;
+        width: 42px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {}
+
+@media (min-width: 1024px) {}

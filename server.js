@@ -12,6 +12,26 @@ const io = socketIo(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+//route to handle requests for the home page
+app.get('/', (req, res) => {
+    // Send the HTML file as the response
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/home', (req, res) => {
+    // Send the HTML file as the response
+    res.sendFile(path.join(__dirname, 'public', '/assets/templates/game_modes.html'));
+});
+app.get('/play', (req, res) => {
+    // Send the HTML file as the response
+    res.sendFile(path.join(__dirname, 'public', '/assets/templates/play.html'));
+});
+app.get('/test', (req, res) => {
+    // Send the HTML file as the response
+    res.sendFile(path.join(__dirname, 'public', '/assets/templates/old_index.html'));
+});
+
+
 // Store game rooms
 const rooms = {};
 const maxRoomSize = 8;

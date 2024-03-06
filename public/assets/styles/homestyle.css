@@ -1,0 +1,140 @@
+#wordCanvas {
+    border: 2px solid black;
+}
+
+@font-face {
+    font-family: 'bernoru-expanded';
+    src: url('/assets/fonts/bernoru/bernoru-expanded.woff') format('opentype');
+}
+
+body {
+    background-image: url('/media/images/home_bg.png');
+    background-repeat: no-repeat;
+    /* background-size: cover; */
+    background-attachment: fixed;
+    background-size: 100% 100%;
+}
+
+#game_banner {
+    border: 1rem solid #F7941D;
+    background-color: #F7B542;
+    padding: 0.5rem;
+    text-align: center;
+    width: 50%;
+    font-family: 'bernoru-expanded', sans-serif;
+    animation: popOut 0.35s ease forwards; /* Pop-out animation */
+}
+@keyframes popOut {
+    0%{
+        transform: scale(0);
+    }
+    50%{
+        transform: scale(1.5);
+    }
+    100%{
+        transform: scale(1);
+    }
+}
+.full-height {
+    height: 100vh;
+}
+
+.center-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.board-top, .board-head{
+    align-items: center;
+    justify-content: center;
+}
+.board-head {
+    background-color: #FFF7D1;
+    height: 2rem;
+    display: flex;
+    box-shadow: 5px 5px 5px #F7941D;
+}
+
+.red-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: #EF4136;
+    border-radius: 50%;
+}
+
+.l-dot {
+    margin-right: auto;
+}
+
+.r-dot {
+    margin-left: auto;
+}
+
+.board-text span {
+    -webkit-text-stroke: 0.275rem #0043af;
+}
+
+.custom-lg {
+    font-size: 64px;
+}
+.custom-btn{
+    color: #FFDB01;
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #F70F18;
+    --bs-btn-border-color: #F70F18;
+    --bs-btn-hover-color: #FFDB01;
+    --bs-btn-hover-bg: #F70F18;
+    --bs-btn-hover-border-color: #F70F18;
+    --bs-btn-focus-shadow-rgb: 225,83,97;
+    --bs-btn-active-color: #FFDB01;
+    --bs-btn-active-bg: #F70F18;
+    --bs-btn-active-border-color: #F70F18;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #FFDB01;
+    --bs-btn-disabled-bg: #F70F18;
+    --bs-btn-disabled-border-color: #F70F18;
+}
+
+#sound_on, #sound_off{
+    cursor: pointer;
+}
+/* Media queries for larger screens */
+@media (max-width: 349px) {
+    body {
+        background-image: url('/media/images/pd_background.png');
+    }
+    .setting-img{
+        background-image: url('/media/images/setting-black.png');
+        background-repeat: no-repeat;
+    }
+    .custom-lg {
+        font-size: 32px;
+    }
+    #game_banner{
+        max-width: 95%;
+    }
+}
+
+@media (min-width: 350px) and (max-width: 767px) {
+    body {
+        background-image: url('/media/images/floor.png'), url('/media/images/pd_background.svg');
+    }
+    .setting-img{
+        background-image: url('/media/images/setting-black.png');
+        background-repeat: no-repeat;
+    }
+    .custom-lg {
+        font-size: 48px;
+    }
+    #game_banner{
+        min-width: 95%;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    
+}
+
+@media (min-width: 1024px) {
+    
+}
