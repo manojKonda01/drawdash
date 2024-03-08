@@ -13,6 +13,14 @@ body {
     /* background-size: cover; */
     background-attachment: fixed;
     background-size: 100% 100%;
+    display: flex;
+    justify-content: center;
+    /* Horizontally center the container */
+    align-items: center;
+    /* Vertically center the container */
+    height: 100vh;
+    /* Set the body height to the height of the viewport */
+    margin: 0;
 }
 
 #game_banner {

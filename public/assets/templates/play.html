@@ -12,38 +12,69 @@
 </head>
 
 <body>
-    <div class="position-relative container-fluid p-0 full-height">
+    <div class="position-relative container-fluid p-0">
         <!-- Modal -->
-        <div class="modal text-centre" tabindex="-1" id="gamerules">
+        <div class="modal text-center" tabindex="-1" id="gamerules" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">GAME RULES</h5>
+                        <h5 class="modal-title" id="rules_title">GAME RULES</h5>
                     </div>
-                    <div class="modal-body">
-                        <p>Guess as many as words you can in 120s</p>
+                    <div class="modal-body d-flex" id="rules_body">
+                        <p></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn custom-btn" id="solo_start">START</button>
+                        <button type="button" class="btn custom-btn" id="start">START</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="container-fluid d-none" id="solo">
-            <div class="canvas-container">
-                <canvas class="canvas-board" id="canva_board"></canvas>
-                <button onclick="undo()">Undo</button>
-                <button onclick="redo()">Re-do</button>
+        <div class="modal text-center" tabindex="-1" id="random_word_modal" data-backdrop="static"
+            data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal_title">CHOOSE A WORD</h5>
+                    </div>
+                    <div class="modal-body" id="modal_body">
+                        <div id="word_body" class="d-flex"></div>
+                        <p class="text-danger mt-4 d-none">Select A Word</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn custom-btn" id="word_start">DRAW</button>
+                    </div>
+                </div>
             </div>
-            <div class="players-list-container">
+        </div>
+
+        <div class="container-fluid d-none" id="start_game">
+            <div class="canvas-container">
+                <div class="position-relative">
+                    <canvas class="canvas-board" id="canva_board"></canvas>
+                    <div class="canvas-head position-absolute top-0">
+                        <button id="undo">Undo</button>
+                        <button id="redo">Re-do</button>
+                        <span class="position-relative" id="display_text">Word</span>
+                        <input type="color" name="" id="">
+                        <input type="hidden" name="word" id="hidden_word">
+                    </div>
+                    <span class="position-absolute" id="start_guessing"></span>
+
+                </div>
 
             </div>
-            <div class="type-guess-container">
-                <form id="guess_submit" class="d-flex" method="post">
+            <div class="players-list-container d-none" id="player_list">
+
+            </div>
+            <div class="type-guess-container d-none" id="typebox">
+                <form id="guess_submit" class="d-flex">
                     <input type="text" name="type-guess" id="type_guess" class="type-guess">
                     <input type="image" src="/media/images/submit.png" alt="Submit" class="image-submit">
                 </form>
+            </div>
+            <div id="submit_drawing" class="d-none">
+                <button type="button" class="btn custom-btn" id="add_drawing_btn">Add Drawing</button>
             </div>
         </div>
     </div>
@@ -54,15 +85,98 @@
     <script src="assets/scripts/jquery.min.js"></script>
     <script src="assets/scripts/privateDrawing.js"></script>
     <script>
-        $('#gamerules').show();
-        document.getElementById('guess_submit').addEventListener('submit', function (event) {
-            event.preventDefault();
-            var inputValue = document.getElementById('type_guess').value;
-        });
-        $('#solo_start').click(function(){
-            drawing();
-            $('#gamerules').hide();
-            $('#solo').removeClass('d-none');
+        $(document).ready(function () {
+            $('#gamerules').modal({ backdrop: 'static', keyboard: false })
+            $('#gamerules').modal('show');
+            // Get the hash fragment from the URL
+            const hashFragment = window.location.hash;
+            const count = { 'count': 3 };
+            // Remove the '#' character from the hash fragment
+            const mode = hashFragment.substring(1); // Remove the '#' character
+            function startCountdownForSoloPlay() {
+                var countdownElement = document.getElementById("start_guessing");
+                var count = 4;
+                countdownElement.innerHTML = "Start Guessing in " + count;
+
+                var countdownInterval = setInterval(function () {
+                    count--;
+                    countdownElement.innerHTML = "Start Guessing in " + count;
+                    if (count === 0) {
+                        countdownElement.innerHTML = "";
+                        soloPlay();
+                        clearInterval(countdownInterval);
+                        // Add code here to start the game after the countdown finishes
+                    }
+                }, 1000); // Update countdown every 1 second
+            }
+            if (mode == 'solo') {
+                $('.canvas-head').addClass('d-none');
+                $('#typebox').removeClass('d-none');
+                $('#rules_body p').text('Guess as many as words you can in 120s');
+            }
+            else if (mode == 'private') {
+                $('#player_list').removeClass('d-none');
+                $('#typebox').removeClass('d-none');
+                $('#rules_body p').text('Create Your Private Room');
+            }
+            else if (mode == 'contribute') {
+                $('#submit_drawing').removeClass('d-none');
+                $('#rules_body p').text('Draw for a word');
+                fetch('/random_words', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        data.forEach(word => {
+                            const $button = $('<button>', {
+                                text: capitalizeFirstLetter(word),
+                                class: 'btn random-word-btn',
+                                id: word
+                            });
+                            $('#word_body').append($button);
+                        });
+                    })
+            }
+            let active = false;
+            $('#random_word_modal').on('click', '.random-word-btn', function () {
+                $('.random-word-btn').removeClass('selected');
+                $(this).toggleClass('selected');
+                active = true;
+            })
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+            $('#start').click(function () {
+                $('#gamerules').modal('hide');
+                if (mode == 'solo') {
+                    startCountdownForSoloPlay();
+                }
+                else if (mode == 'contribute' || mode == 'public') {
+                    $('#random_word_modal').modal({ backdrop: 'static', keyboard: false })
+                    $('#random_word_modal').modal('show');
+                    if (mode == 'contribute') {
+                        drawing();
+                    }
+                    else if (mode == 'private') {
+                        joinRoom();
+                    }
+                }
+                $('#start_game').removeClass('d-none');
+            })
+
+            $('#word_start').click(function () {
+                if ($('.random-word-btn').hasClass('selected')) {
+                    $('#random_word_modal').modal('hide');
+                    $('#modal_body p').addClass('d-none');
+                }
+                else {
+                    $('#modal_body p').removeClass('d-none');
+                }
+            })
         })
     </script>
 </body>
