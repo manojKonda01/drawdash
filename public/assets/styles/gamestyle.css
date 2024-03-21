@@ -1,0 +1,441 @@
+@font-face {
+    font-family: 'sports-world';
+    src: url('/assets/fonts/sports_world/Sports_World_Regular.otf') format('opentype');
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+body {
+    background-image: url('/media/images/main_mixed.png');
+    background-repeat: no-repeat;
+    /* background-size: cover; */
+    background-attachment: fixed;
+    background-size: 100% 100%, 100% 100%;
+    display: flex;
+    justify-content: center;
+    /* Horizontally center the container */
+    align-items: center;
+    /* Vertically center the container */
+    height: 100vh;
+    /* Set the body height to the height of the viewport */
+    margin: 0;
+}
+
+.setting-img {
+    background-image: url('/media/images/setting-white.png');
+    background-repeat: no-repeat;
+}
+
+#game_banner {
+    border: 1rem solid #F7941D;
+    background-color: #343432;
+    padding: 0.5rem;
+    width: 50%;
+}
+
+.pop-out {
+    animation: popOut 0.35s ease forwards;
+    /* Pop-out animation */
+}
+
+.pop-in {
+    animation: popIn 0.35s ease forwards;
+    /* Pop-out animation */
+}
+
+@keyframes popOut {
+    0% {
+        transform: scale(0);
+    }
+
+    50% {
+        transform: scale(1.5);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.5);
+    }
+
+    100% {
+        transform: scale(0);
+    }
+}
+
+.full-height {
+    height: 100vh;
+}
+
+.center-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.board-top,
+.board-head {
+    align-items: center;
+    justify-content: center;
+}
+
+.board-head {
+    background-color: #F7941D;
+    height: 2rem;
+    display: flex;
+}
+
+.white-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: white;
+    border-radius: 50%;
+}
+
+.l-dot {
+    margin-right: auto;
+}
+
+.r-dot {
+    margin-left: auto;
+}
+
+#sound_on,
+#sound_off,
+.setting-img,
+#settings {
+    cursor: pointer;
+}
+
+.modal-title,
+.modal-footer {
+    font-family: 'sports-world';
+}
+
+.mode-container,
+.input-container {
+    align-items: stretch;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.input-container {
+    font-family: 'sports-world';
+}
+
+.input-holder {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.mode-btn {
+    flex: 1 0 30%;
+    background: none;
+    color: white;
+    cursor: pointer;
+    margin: 0 2rem;
+    transition: transform 0.01s ease;
+}
+
+.mode-btn:hover {
+    transform: scale(1.2);
+}
+
+.mode-btn:hover .mode-txt {
+    background-color: white;
+    color: black;
+}
+
+.mode-txt {
+    border: 1px solid white;
+    border-radius: 0.5rem;
+    font-family: 'sports-world';
+}
+
+/* .canvas-container,
+.type-guess-container,
+#submit_drawing {
+    margin-left: 2rem;
+    margin-right: 2rem;
+}
+
+.canvas-container {
+    margin-top: 4rem;
+    margin-bottom: 1.5rem;
+} */
+
+canvas {
+    cursor: pointer;
+}
+.canvas-board{
+    width: 60vw;
+    height: 70vh;
+}
+.canvas-board,
+.type-guess {
+    border: 1px solid black;
+    background-color: white;
+}
+
+/* .canvas-container {
+    width: 60vw;
+    height: 70vh;
+} */
+
+.type-guess {
+    height: 3rem;
+    padding: 0 1rem;
+}
+
+.image-submit {
+    position: relative;
+    left: -48px;
+    width: 48px;
+    padding: 0.5rem;
+    border-left: 0;
+}
+
+.type-guess:focus {
+    outline: none;
+}
+
+.custom-lg {
+    font-size: 64px;
+}
+
+.custom-btn {
+    font-family: 'sports-world';
+    color: #FFDB01;
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #F70F18;
+    --bs-btn-border-color: #F70F18;
+    --bs-btn-hover-color: #FFDB01;
+    --bs-btn-hover-bg: #F70F18;
+    --bs-btn-hover-border-color: #F70F18;
+    --bs-btn-focus-shadow-rgb: 225, 83, 97;
+    --bs-btn-active-color: #FFDB01;
+    --bs-btn-active-bg: #F70F18;
+    --bs-btn-active-border-color: #F70F18;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #FFDB01;
+    --bs-btn-disabled-bg: #F70F18;
+    --bs-btn-disabled-border-color: #F70F18;
+}
+
+.random-word-btn {
+    border: 1px solid #28a745;
+    /* Default border color */
+    color: #28a745;
+    /* Default text color */
+    background-color: transparent;
+}
+
+.random-word-btn.selected,
+.random-word-btn:hover {
+    background-color: #28a745;
+    /* Change background color when selected */
+    color: #fff;
+}
+
+#word_body {
+    justify-content: space-evenly;
+}
+
+#start_guessing {
+    font-family: 'sports-world';
+    color: white;
+    padding-left: 0.5rem;
+    text-shadow: -1px 0 #F70F18, 0 1px #F70F18, 1px 0 #F70F18, 0 -1px #F70F18;
+}
+
+#clear {
+    right: 0;
+}
+
+.loader-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loader {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #3498db;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+#get_username {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 600;
+}
+
+.input-settings {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#user_image {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+}
+
+.input-settings {
+    border-radius: 1.5rem;
+    border: none;
+}
+
+.input-settings:focus {
+    outline: none;
+}
+
+.avatar-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: stretch;
+    justify-content: center;
+}
+
+.avatar-container {
+    border-radius: 50%;
+    /* Make it a circle */
+    background-color: white;
+    /* White background */
+}
+.icon-selected{
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: white;
+    background: black;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+}
+.avatar-img {
+    object-fit: cover;
+    /* Ensure the image covers the entire container */
+}
+.custom-btn-2{
+    border: 1px solid white;
+    border-radius: 1.5rem;
+    color: white;
+}
+.custom-btn-2:hover{
+    background: white;
+    color: black;
+}
+/* Style for the word container */
+#wordContainer{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#timer{
+    width: 36px;
+    height: 36px;
+}
+.countdown{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #F70F18;
+}
+/* Style for each letter */
+.letter {
+    border-bottom: 2px solid black;
+    width: 10px;
+    /* Adjust the border color and thickness as needed */
+    margin: 0 5px;
+    /* Adjust the spacing between letters as needed */
+}
+#start_game{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 767px) {
+    body {
+        background-image: url('/media/images/floor.png'), url('/media/images/pd_background.svg');
+    }
+
+    .setting-img {
+        background-image: url('/media/images/setting-black.png');
+        background-repeat: no-repeat;
+    }
+
+    .custom-lg {
+        font-size: 48px;
+    }
+
+    #game_banner {
+        min-width: 95%;
+    }
+
+    .canvas-board,
+    .canvas-container {
+        height: 60vh;
+        width: 80vw;
+    }
+
+    .type-guess {
+        width: 80vw;
+        border-right: 0;
+    }
+
+    .image-submit {
+        position: relative;
+        left: 0;
+        border: 1px solid black;
+        border-left: 0;
+        background-color: white;
+        width: 42px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {}
+
+@media (min-width: 1024px) {}

@@ -1,0 +1,10 @@
+media/images/avatars/artist.svg
+media/images/avatars/baby-cartoon-cute.svg
+media/images/avatars/boy-brother-cartoon.svg
+media/images/avatars/cartoon-child-girl.svg
+media/images/avatars/cartoon-male.svg
+media/images/avatars/cat.svg
+media/images/avatars/dad.svg
+media/images/avatars/mom.svg
+media/images/avatars/panda.svg
+media/images/avatars/woman-artist.svg

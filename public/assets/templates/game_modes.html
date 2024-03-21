@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw Dash</title>
+    <!-- CDN link to bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="assets/styles/gamestyle.css" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="media/images/favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="media/images/favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="media/images/favicon_io/favicon-16x16.png">
+    <link rel="manifest" href="media/images/favicon_io/site.webmanifest">
+</head>
+
+<body>
+    <div class="position-relative container-fluid p-0 center-container" id="home">
+        <!-- <div class="position-absolute top-0 end-0 setting-img p-3 m-3">
+
+        </div> -->
+        <div class="container text-white pop-out" id="game_banner">
+            <div class="d-grid">
+                <div class="board-top d-flex">
+                    <div class="volume invisible">
+                        <img src="media/images/volume.png" alt="">
+                    </div>
+                    <div class="board-head container w-50">
+                        <div class="l-dot white-dot"></div>
+                        <div>
+                            <img src="" alt="" id="user_image">
+                        </div>
+                        <div id="get_username" class="mx-2"></div>
+                        <div class="r-dot white-dot"></div>
+                    </div>
+                    <div class="volume invisible">
+                        <div id="sound_on">
+                            <img src="media/images/volume-white.png" alt="sound">
+                        </div>
+                        <div id="sound_off" class="d-none">
+                            <img src="media/images/mute-white.png" alt="mute">
+                        </div>
+                    </div>
+                    <div id="settings">
+                        <img src="media/images/setting-white.png" alt="settings-icon">
+                    </div>
+                </div>
+                <div class="d-flex mode-container p-3 my-3">
+                    <div class="mode-btn" id="solo">
+                        <p class="mode-txt px-3 py-2">PLAY SOLO</p>
+                    </div>
+                    <div class="mode-btn">
+                        <p class="mode-txt px-3 py-2">PLAY ONLINE</p>
+                    </div>
+                    <div class="mode-btn">
+                        <p class="mode-txt px-3 py-2">PRIVATE ROOM</p>
+                    </div>
+                    <div class="mode-btn">
+                        <p class="mode-txt px-3 py-2">SKETCH</p>
+                    </div>
+                    <div class="mode-btn" id="contribute">
+                        <p class="mode-txt px-3 py-2">CONTRIBUTE</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script>
+        window.addEventListener('load', function () {
+            // Check if there is an active session (you need to implement this logic)
+            const activeSession = localStorage.getItem('drawdash_user');
+
+            // If there is no active session, redirect to the main URL
+            if (!activeSession) {
+                window.location.href = '/'; // Replace '/main-url' with your main URL
+            }
+        });
+        const sound_on = document.getElementById('sound_on');
+        const sound_off = document.getElementById('sound_off');
+        const lets_go = document.getElementById('lets_go');
+        const banner = document.getElementById('game_banner');
+        const get_username = document.getElementById('get_username');
+        const user_image = document.getElementById('user_image');
+        const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
+        const setting = document.getElementById('settings');
+
+        setting.addEventListener('click', function(){
+            window.location.href = '/settings';
+        })
+        get_username.textContent = userSession.username;
+        if(userSession.imageurl){
+            user_image.src = userSession.imageurl;
+        }
+        else{
+            user_image.src = 'media/images/avatars/panda.svg';
+        }
+
+        sound_on.addEventListener('click', function () {
+            sound_on.classList.add('d-none');
+            sound_off.classList.remove('d-none');
+        });
+
+        sound_off.addEventListener('click', function () {
+            sound_off.classList.add('d-none');
+            sound_on.classList.remove('d-none');
+        });
+
+        const modes = document.querySelectorAll('.mode-btn');
+        modes.forEach(mode => {
+            mode.addEventListener('click', function () {
+                banner.classList.add('pop-in')
+                setTimeout(function () {
+                    banner.classList.remove('pop-in')
+                    window.location.href = '/play#' + mode.getAttribute('id');
+                }, 350);
+            });
+        });
+    </script>
+</body>
+
+</html>
