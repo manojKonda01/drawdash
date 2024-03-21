@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw Dash</title>
+    <!-- CDN link to bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="assets/styles/gamestyle.css" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="media/images/favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="media/images/favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="media/images/favicon_io/favicon-16x16.png">
+    <link rel="manifest" href="media/images/favicon_io/site.webmanifest">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+
+<body>
+    <div class="position-relative container-fluid p-0 center-container" id="home">
+        <!-- <div class="position-absolute top-0 end-0 setting-img p-3 m-3">
+
+        </div> -->
+        <div class="container text-white pop-out" id="game_banner">
+            <div class="d-grid">
+                <div class="board-top d-flex">
+                    <div class="board-head container w-50">
+                        <div class="l-dot white-dot"></div>
+                        <div id="get_username" class="mx-2">Settings</div>
+                        <div class="r-dot white-dot"></div>
+                    </div>
+                </div>
+                <div class="d-flex input-container my-3">
+                    <div>
+                        <div class="input-holder mb-3 mt-2">
+                            <label for="username">USER NAME</label>
+                            <input type="text" name="username" id="username" class="input-settings px-4 py-2">
+                        </div>
+                        <div class="input-holder mb-3 mt-2">
+                            <label for="name">NAME</label>
+                            <input type="text" name="name" id="name" class="input-settings px-4 py-2">
+                        </div>
+                    </div>
+                    <div class="input-holder mb-3 mt-2">
+                        <div>Choose Avatar</div>
+                        <div id="avatars_container" class="avatar-list mx-5 my-3">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div id="back" class="btn custom-btn-2 px-4 m-3">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Back</span>
+                    </div>
+                    <div id="save" class="btn custom-btn-2 px-4 m-3">
+                        <span>Save</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script>
+        const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
+        window.onload = function () {
+            // Fetch the avatars.txt file
+            fetch('avatars.txt')
+                .then(response => response.text())
+                .then(data => {
+                    // Split the text by new lines to get individual URLs
+                    const urls = data.split('\n');
+
+                    // Display each URL in the avatarList div
+                    const avatarList = document.getElementById('avatars_container');
+                    urls.forEach(url => {
+                        const container = document.createElement('div');
+                        container.classList.add('avatar-container');
+
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.width = 48;
+                        img.height = 48;
+                        img.classList.add('avatar-img');
+                        container.style.overflow = 'hidden';
+                        if (userSession.imageurl) {
+                            if (url == userSession.imageurl) {
+                                container.classList.add('position-relative');
+                                const editIcon = document.createElement('i');
+                                editIcon.classList.add('fa-solid', 'fa-pen', 'icon-selected'); // Assuming Font Awesome is used for edit icon
+                                container.style.overflow = '';
+                                container.appendChild(editIcon);
+                            }
+                        }
+                        container.appendChild(img);
+                        avatarList.appendChild(container);
+                    });
+                })
+                .catch(error => console.error('Error fetching avatars:', error));
+        };
+        const username = document.getElementById('username');
+        const name = document.getElementById('name');
+        const back = document.getElementById('back');
+
+        if (userSession) {
+            username.placeholder = userSession.username ? userSession.username : '';
+            name.placeholder = userSession.name ? userSession.name : '';
+        }
+        back.addEventListener('click', function(){
+            window.location.href = '/home';
+        })
+    </script>
+</body>
+
+</html>

@@ -169,3 +169,38 @@ function submitGuess() {
     playerName = document.getElementById('playerName').value;
     socket.emit('guess', roomID, playerName, guess);
 }
+
+if (json.data) {
+    let jsonString = JSON.stringify(JSON.parse(json.data[0].data));
+    if (jsonString) {
+        try {
+            drawLinesStepByStep(JSON.parse(jsonString));
+            let currentDrawingIndex = 1;
+            let totalTime = 120000; // 120 seconds in milliseconds
+            let elapsedTime = 0;
+            let interval = setInterval(function () {
+                elapsedTime += 15000; // 15 seconds in milliseconds
+                if (elapsedTime <= totalTime) {
+                    if (currentDrawingIndex < json.data.length) {
+                        let jsonString = JSON.stringify(JSON.parse(json.data[currentDrawingIndex].data))
+                        drawLinesStepByStep(JSON.parse(jsonString));
+                        currentDrawingIndex++;
+                    } else {
+                        console.log('out of rounds')
+                        clearInterval(interval); // Stop the interval after total time
+                        // open scoreboard
+                    }
+                } else {
+                    clearInterval(interval); // Stop the interval after total time
+                    // open scoreboard
+                }
+            }, 15000);
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+}
+else {
+    console.log('Null Data');
+}

@@ -12,12 +12,13 @@ const io = socketIo(server);
 const bodyParser = require('body-parser');
 
 
-const {connectToMongoDB, insertDrawingData, getRandomDrawingData} = require('./DB')
+const {connectToMongoDB, insertDrawingData, getRandomDrawingData, getCountRandomDrawingData, registerUser, googleSignIn} = require('./DB')
 
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+// Increase payload size limit
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 //route to handle requests for the home page
 app.get('/', (req, res) => {
     // Send the HTML file as the response
@@ -28,15 +29,50 @@ app.get('/home', (req, res) => {
     // Send the HTML file as the response
     res.sendFile(path.join(__dirname, 'public', '/assets/templates/game_modes.html'));
 });
+app.get('/settings', (req, res) => {
+    // Send the HTML file as the response
+    res.sendFile(path.join(__dirname, 'public', '/assets/templates/settings.html'));
+});
 app.get('/play', (req, res) => {
     // Send the HTML file as the response
     res.sendFile(path.join(__dirname, 'public', '/assets/templates/play.html'));
 });
-app.get('/test', (req, res) => {
-    // Send the HTML file as the response
-    res.sendFile(path.join(__dirname, 'public', '/assets/templates/old_index.html'));
-});
-
+// api to register user
+app.post('/register', async (req, res) => {
+    try{
+        const {username, name, imageurl} = req.body;
+        let new_image = imageurl;
+        if(!imageurl){
+            new_image = 'media/images/avatars/panda.svg';
+        }
+        const result = await registerUser(username, name, imageurl);
+        if(result.success){
+            res.status(200).json(result);
+        }
+        else{
+            res.status(500).json(result);
+        }
+    }
+    catch(error){
+        res.status(500).json({message: 'Internal Server Error'});
+    }
+})
+// api to register user
+app.post('/googlesignin', async (req, res) => {
+    try{
+        const {username, name, imageurl} = req.body;
+        const result = await googleSignIn(username, name, imageurl);
+        if(result.success){
+            res.status(200).json(result);
+        }
+        else{
+            res.status(500).json(result);
+        }
+    }
+    catch(error){
+        res.status(500).json({message: 'Internal Server Error'});
+    }
+})
 // api to get random word
 app.get('/random_words', (req, res) => {
     res.json(getRandomWords('word.txt', 3));
@@ -58,7 +94,7 @@ app.post('/add_drawing_data', async (req, res) => {
     }
 });
 
-// api to add random drawing data
+// api to get random drawing data
 app.post('/getDrawingData', async (req, res) => {
     try{
         const result = await getRandomDrawingData();
@@ -73,6 +109,24 @@ app.post('/getDrawingData', async (req, res) => {
         res.status(500).json({message: 'Internal Server Error'});
     }
 })
+
+// api to get n random drawing data
+app.post('/getnDrawingData', async (req, res) => {
+    try{
+        const {count} = req.body
+        const result = await getCountRandomDrawingData(count);
+        if(result.success){
+            res.status(200).json({message: 'Success', data: result.data});
+        }
+        else{
+            res.status(500).json({message: 'Failed To Get Data'});
+        }
+    }
+    catch(error){
+        res.status(500).json({message: 'Internal Server Error'});
+    }
+})
+
 // Store game rooms
 const rooms = {};
 const maxRoomSize = 8;
