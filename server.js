@@ -4,8 +4,10 @@ const socketIo = require('socket.io');
 const path = require('path'); // Import the path module
 const fs = require('fs');
 const uuid = require('uuid');
+require('dotenv').config();
 
 const app = express();
+const port = process.env.PORT;
 const server = http.createServer(app);
 const io = socketIo(server);
 
@@ -305,7 +307,11 @@ io.on('connection', (socket) => {
 
 });
 
-server.listen(3000, () => {
-    console.log('Server started on port 3000');
+// server.listen(3000, () => {
+//     console.log('Server started on port 3000');
+// });
+// Start the server
+app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
 });
 

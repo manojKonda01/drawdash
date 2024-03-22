@@ -119,10 +119,13 @@ body {
 #sound_on,
 #sound_off,
 .setting-img,
-#settings {
+#settings, #contribute{
     cursor: pointer;
 }
-
+/* #contribute:hover{
+    color: black;
+    background: white;
+} */
 .modal-title,
 .modal-footer {
     font-family: 'sports-world';
@@ -171,36 +174,44 @@ body {
     font-family: 'sports-world';
 }
 
-/* .canvas-container,
+.canvas-container,
 .type-guess-container,
 #submit_drawing {
     margin-left: 2rem;
     margin-right: 2rem;
 }
 
-.canvas-container {
-    margin-top: 4rem;
-    margin-bottom: 1.5rem;
-} */
 
 canvas {
     cursor: pointer;
 }
-.canvas-board{
-    width: 60vw;
-    height: 70vh;
-}
+
 .canvas-board,
 .type-guess {
+    width: 60vw;
+    height: 70vh;
     border: 1px solid black;
     background-color: white;
 }
 
-/* .canvas-container {
-    width: 60vw;
-    height: 70vh;
-} */
-
+.canvas-container {
+    /* width: 60vw;
+    height: 70vh; */
+    display: flex;
+    flex-wrap: wrap;
+    /* margin-top: 4rem; */
+    margin-bottom: 1.5rem;
+    /* align-items: center;
+    justify-content: center; */
+}
+.word-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin-left: auto;
+    margin-right: auto;
+}
 .type-guess {
     height: 3rem;
     padding: 0 1rem;
@@ -381,11 +392,6 @@ canvas {
     /* Adjust the border color and thickness as needed */
     margin: 0 5px;
     /* Adjust the spacing between letters as needed */
-}
-#start_game{
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 @keyframes spin {
     0% {

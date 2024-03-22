@@ -305,6 +305,7 @@ function soloPlay() {
             .then(response => response.json())
             .then(json => {
                 if (json.data) {
+                    $('.loader-wrapper').addClass('d-none');
                     drawingArray = json.data;
                     startDrawingProcess();
                 }

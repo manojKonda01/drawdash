@@ -48,6 +48,9 @@
 
                         </div>
                     </div>
+                    <div class="" id="contribute">
+                        <p class="mode-txt px-3 py-2">CONTRIBUTE</p>
+                    </div>
                 </div>
                 <div class="d-flex justify-content-between">
                     <div id="back" class="btn custom-btn-2 px-4 m-3">
@@ -106,14 +109,22 @@
         const username = document.getElementById('username');
         const name = document.getElementById('name');
         const back = document.getElementById('back');
+        const banner = document.getElementById('game_banner');
 
         if (userSession) {
             username.placeholder = userSession.username ? userSession.username : '';
             name.placeholder = userSession.name ? userSession.name : '';
         }
-        back.addEventListener('click', function(){
+        back.addEventListener('click', function () {
             window.location.href = '/home';
         })
+        document.getElementById('contribute').addEventListener('click', function () {
+            banner.classList.add('pop-in')
+            setTimeout(function () {
+                banner.classList.remove('pop-in')
+                window.location.href = '/play#contribute';
+            }, 350);
+        });
     </script>
 </body>
 

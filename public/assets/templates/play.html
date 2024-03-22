@@ -78,12 +78,6 @@
         </div>
         <div class="container-fluid d-none" id="start_game">
             <div class="canvas-container">
-                <div class="word-container text-center mb-2">
-                    <div id="timer" class="mb-2"></div>
-                    <div id="wordContainer">
-
-                    </div>
-                </div>
                 <div class="position-relative">
                     <canvas class="canvas-board" id="canva_board"></canvas>
                     <div class="canvas-head position-absolute top-0">
@@ -96,6 +90,15 @@
                     <button id="clear" class="position-absolute">Clear</button>
                     <!-- <span class="position-absolute" id="start_guessing"></span> -->
                 </div>
+                <div class="word-container text-center mb-2">
+                    <div id="timer" class="mb-4"></div>
+                    <div id="wordContainer">
+
+                    </div>
+                </div>
+            </div>
+            <div class="players-list-container" id="player_list">
+                <!-- <div id="countdown_timer">Time left: <span id="countdown">15</span> seconds</div> -->
             </div>
             <div class="type-guess-container d-none" id="typebox">
                 <form id="guess_submit" class="d-flex">
@@ -163,7 +166,6 @@
                     count--;
                     countdownElement.innerHTML = "Start Guessing in " + count;
                     if (count === 0) {
-                        $('.loader-wrapper').addClass('d-none');
                         countdownElement.innerHTML = "";
                         soloPlay();
                         clearInterval(countdownInterval);
