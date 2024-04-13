@@ -1,12 +1,10 @@
-const socket = io();
-
 let roomID;
 let playerName;
-
-
+let reload = false;
 
 const canvas = document.getElementById('canva_board');
 const ctx = canvas.getContext('2d');
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="16" height="16" viewBox="0,0,256,256" style="fill:#000000;"> <g fill="none" fill-rule="nonzero" stroke="none" stroke-width="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(6.4,6.4)"><path d="M20,38.5c-10.2,0 -18.5,-8.3 -18.5,-18.5c0,-10.2 8.3,-18.5 18.5,-18.5c10.2,0 18.5,8.3 18.5,18.5c0,10.2 -8.3,18.5 -18.5,18.5z" fill="#326400" stroke="none" stroke-width="1"></path><path d="M20,2c9.9,0 18,8.1 18,18c0,9.9 -8.1,18 -18,18c-9.9,0 -18,-8.1 -18,-18c0,-9.9 8.1,-18 18,-18M20,1c-10.5,0 -19,8.5 -19,19c0,10.5 8.5,19 19,19c10.5,0 19,-8.5 19,-19c0,-10.5 -8.5,-19 -19,-19z" fill="#326400" stroke="none" stroke-width="1"></path><path d="M11.2,20.1l5.8,5.8l13.2,-13.2" fill="none" stroke="#ffffff" stroke-width="3"></path></g></g></svg>`
 // Function to set canvas size based on CSS size
 function setCanvasSize() {
     const computedStyle = getComputedStyle(canvas);
@@ -248,6 +246,8 @@ function soloPlay() {
     let roundTimer; // Timer for each round
     let countDownTimer;
     let drawTimer; //Timer to draw
+    let guess_count = 0;
+
     drawN(20);
 
     function displayWord(word) {
@@ -360,6 +360,7 @@ function soloPlay() {
             if (currentRound == drawingArray.length) {
                 $('#scoreboard').modal({ backdrop: 'static', keyboard: false })
                 $('#scoreboard').modal('show');
+                reload = false;
             }
             console.log('All rounds completed!');
             // open Leader Board
@@ -381,12 +382,28 @@ function soloPlay() {
     // Function to handle player's guess
     function handlePlayerGuess(guess) {
         // Check if the guess is correct
-        const correctGuess = $('#hidden_word').val() == guess;
+        const correctGuess = $('#hidden_word').val().toUpperCase() == guess.toUpperCase();
+        const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
+        var listItem = document.createElement('li');
+        const chatList = document.getElementById('chat_list');
+
+        listItem.classList.add('chat-item', 'py-1');
+        var imageSrc = '';
+        if(userSession.imageurl){
+            imageSrc  = userSession.imageurl;
+        }
+        else{
+            imageSrc = 'media/images/avatars/panda.svg';
+        }
+        const img = `<img src=${imageSrc} alt='user-image'></img>`
         if (correctGuess) {
+            guess_count++;
+            console.log('score: ',guess_count);
+            $('#guess_count').text(guess_count);
             clearTimeout(drawTimer);
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
             ctx.closePath();
-
+            listItem.innerHTML = img+`<span class='guess-word-chat px-1'>Correct!<span>`+svg;
             // Guess is correct, advance to the next round immediately
             $('#start_guessing').text('Your Guess is Right!');
             clearInterval(roundTimer); // Stop the timer for the current round
@@ -395,14 +412,18 @@ function soloPlay() {
             startRoundTimer();
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
         } else {
+            listItem.innerHTML = img+`<span class='guess-word-chat px-1'>${guess}<span>`;
             // Guess is incorrect, continue with the timer for the current round
             console.log('Incorrect guess. Waiting for round timer to expire.');
         }
+        chatList.appendChild(listItem);
+        chatList.scrollTop = chatList.scrollHeight;
     }
 
     // funtion to start drawing process
     function startDrawingProcess() {
         startTimer();
+        reload = true;
         let jsonString = JSON.stringify(JSON.parse(drawingArray[currentRound].data))
         $('#hidden_word').val(drawingArray[currentRound].word);
         displayWord(drawingArray[currentRound].word);
@@ -421,6 +442,7 @@ function soloPlay() {
             $('#scoreboard').modal({ backdrop: 'static', keyboard: false })
             $('#scoreboard').modal('show');
             console.log('Drawing process completed!');
+            reload = false;
             // You can add any additional logic here when the total duration is reached
         }, totalTime);
     }
@@ -504,6 +526,7 @@ function soloPlay() {
     }
 }
 function joinRoom() {
+    const socket = io();
     roomID = document.getElementById('roomID').value;
     playerName = document.getElementById('playerName').value;
 
@@ -699,3 +722,17 @@ function submitGuess() {
     playerName = document.getElementById('playerName').value;
     socket.emit('guess', roomID, playerName, guess);
 }
+
+// Add an event listener for the beforeunload event
+window.addEventListener('beforeunload', function (event) {
+    if (reload) {
+        // Cancel the default action (showing the default confirmation dialog)
+        event.preventDefault();
+        // Show a custom confirmation message
+        event.returnValue = '';
+        // You can customize the message to fit your needs
+        const confirmationMessage = 'Are you sure you want to reload?';
+        // Returning the custom message will prompt the user with a confirmation dialog
+        return confirmationMessage;
+    }
+});

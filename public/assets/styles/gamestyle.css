@@ -19,11 +19,6 @@ body {
     /* background-size: cover; */
     background-attachment: fixed;
     background-size: 100% 100%, 100% 100%;
-    display: flex;
-    justify-content: center;
-    /* Horizontally center the container */
-    align-items: center;
-    /* Vertically center the container */
     height: 100vh;
     /* Set the body height to the height of the viewport */
     margin: 0;
@@ -119,9 +114,11 @@ body {
 #sound_on,
 #sound_off,
 .setting-img,
-#settings, #contribute{
+#settings,
+#contribute {
     cursor: pointer;
 }
+
 /* #contribute:hover{
     color: black;
     background: white;
@@ -204,29 +201,43 @@ canvas {
     /* align-items: center;
     justify-content: center; */
 }
-.word-container{
+
+.word-container {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
     margin-left: auto;
     margin-right: auto;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
 }
+
 .type-guess {
     height: 3rem;
     padding: 0 1rem;
+    border-right: 0;
 }
 
 .image-submit {
-    position: relative;
-    left: -48px;
+    background-color: white;
+    /* position: relative;
+    left: -48px; */
     width: 48px;
     padding: 0.5rem;
+    border: 1px solid black;
     border-left: 0;
 }
 
 .type-guess:focus {
     outline: none;
+    border-color: #40a9ff;
+}
+
+.type-guess:focus+.image-submit {
+    border-color: #40a9ff;
 }
 
 .custom-lg {
@@ -342,7 +353,8 @@ canvas {
     background-color: white;
     /* White background */
 }
-.icon-selected{
+
+.icon-selected {
     position: absolute;
     top: 0;
     right: 0;
@@ -352,30 +364,36 @@ canvas {
     padding: 0.25rem;
     border-radius: 50%;
 }
+
 .avatar-img {
     object-fit: cover;
     /* Ensure the image covers the entire container */
 }
-.custom-btn-2{
+
+.custom-btn-2 {
     border: 1px solid white;
     border-radius: 1.5rem;
     color: white;
 }
-.custom-btn-2:hover{
+
+.custom-btn-2:hover {
     background: white;
     color: black;
 }
+
 /* Style for the word container */
-#wordContainer{
+#wordContainer {
     display: flex;
     align-items: center;
     justify-content: center;
 }
-#timer{
+
+#timer {
     width: 36px;
     height: 36px;
 }
-.countdown{
+
+.countdown {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -385,6 +403,7 @@ canvas {
     background: white;
     border: 2px solid #F70F18;
 }
+
 /* Style for each letter */
 .letter {
     border-bottom: 2px solid black;
@@ -392,6 +411,72 @@ canvas {
     /* Adjust the border color and thickness as needed */
     margin: 0 5px;
     /* Adjust the spacing between letters as needed */
+}
+
+#chat_list,
+#guess_submit {
+    position: absolute;
+    width: 100%;
+}
+
+#chat_list {
+    width: 100%;
+    border-radius: 4px;
+    z-index: 999;
+    bottom: 0;
+    max-height: 150px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+#chat_list img {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+}
+
+#chat_list::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    display: none\9;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    opacity: 0;
+    -webkit-transition: all .3s;
+    transition: all .3s;
+    content: "";
+    pointer-events: none;
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    font-size: small;
+    list-style-type: none;
+}
+
+.guess-word-chat {
+    font-size: small;
+}
+#guess_count{
+    padding: 0.5rem;
+    font-size: 2rem;
+    color: var(--primary-blue);
+    border-radius: 4px;
+    border: 2px solid rgb(217, 239, 255);
+    background-color: rgb(240, 249, 255);
+    width: 60px;
+    text-align: center;
+    font-weight: 600;
+}
+.back-home{
+    cursor: pointer;
 }
 @keyframes spin {
     0% {
@@ -439,6 +524,23 @@ canvas {
         border-left: 0;
         background-color: white;
         width: 42px;
+    }
+
+    .word-container {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .game-container{
+        flex-direction: column;
+    }
+    .count-container{
+        position: fixed;
+        bottom: 0;
+    }
+    .back-home svg g{
+        fill: black;
     }
 }
 

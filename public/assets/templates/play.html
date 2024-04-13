@@ -19,7 +19,8 @@
 <body>
     <div class="position-relative container-fluid p-0">
         <!-- Modal -->
-        <div class="modal text-center pop-out" tabindex="-1" id="gamerules" data-backdrop="static" data-keyboard="false">
+        <div class="modal text-center pop-out" tabindex="-1" id="gamerules" data-backdrop="static"
+            data-keyboard="false">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -54,7 +55,8 @@
             </div>
         </div>
 
-        <div class="modal text-center pop-out" tabindex="-1" id="scoreboard" data-backdrop="static" data-keyboard="false">
+        <div class="modal text-center pop-out" tabindex="-1" id="scoreboard" data-backdrop="static"
+            data-keyboard="false">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -76,40 +78,70 @@
             <div class="loader"></div>
             <span id="start_guessing"></span>
         </div>
-        <div class="container-fluid d-none" id="start_game">
-            <div class="canvas-container">
-                <div class="position-relative">
-                    <canvas class="canvas-board" id="canva_board"></canvas>
-                    <div class="canvas-head position-absolute top-0">
-                        <button id="undo">Undo</button>
-                        <button id="redo">Re-do</button>
-                        <span class="position-relative" id="display_text">Word</span>
-                        <input type="color" name="" id="">
-                        <input type="hidden" name="word" id="hidden_word">
-                    </div>
-                    <button id="clear" class="position-absolute">Clear</button>
-                    <!-- <span class="position-absolute" id="start_guessing"></span> -->
-                </div>
-                <div class="word-container text-center mb-2">
-                    <div id="timer" class="mb-4"></div>
-                    <div id="wordContainer">
 
+        <div class="d-flex align-items-center mt-5 mx2 game-container">
+            <div class="position-absolute top-0 end-0 mx-3 back-home d-none">
+                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0,0,256,256"
+                    style="fill:#000000;">
+                    <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt"
+                        stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0"
+                        font-family="none" font-weight="none" font-size="none" text-anchor="none"
+                        style="mix-blend-mode: normal">
+                        <g transform="scale(10.66667,10.66667)">
+                            <path
+                                d="M12,2c-0.26712,0.00003 -0.52312,0.10694 -0.71094,0.29688l-10.08594,8.80078c-0.12774,0.09426 -0.20313,0.24359 -0.20312,0.40234c0,0.27614 0.22386,0.5 0.5,0.5h2.5v8c0,0.552 0.448,1 1,1h4c0.552,0 1,-0.448 1,-1v-6h4v6c0,0.552 0.448,1 1,1h4c0.552,0 1,-0.448 1,-1v-8h2.5c0.27614,0 0.5,-0.22386 0.5,-0.5c0.00001,-0.15876 -0.07538,-0.30808 -0.20312,-0.40234l-10.08008,-8.79492c-0.00194,-0.00196 -0.0039,-0.00391 -0.00586,-0.00586c-0.18782,-0.18994 -0.44382,-0.29684 -0.71094,-0.29687z">
+                            </path>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+            <div class="d-none d-flex flex-column" id="start_game">
+                <div class="canvas-container">
+                    <div class="position-relative">
+                        <canvas class="canvas-board" id="canva_board"></canvas>
+                        <div class="canvas-head position-absolute top-0">
+                            <button id="undo">Undo</button>
+                            <button id="redo">Re-do</button>
+                            <span class="position-relative" id="display_text">Word</span>
+                            <input type="color" name="" id="">
+                            <input type="hidden" name="word" id="hidden_word">
+                        </div>
+                        <button id="clear" class="position-absolute">Clear</button>
+                        <!-- <span class="position-absolute" id="start_guessing"></span> -->
+                        <div class="word-container text-center mb-2 mt-2">
+                            <div id="timer" class="mb-4"></div>
+                            <div id="wordContainer">
+
+                            </div>
+                        </div>
                     </div>
                 </div>
+                <div class="players-list-container" id="player_list">
+                    <!-- <div id="countdown_timer">Time left: <span id="countdown">15</span> seconds</div> -->
+                </div>
+                <div class="type-guess-container position-relative d-none" id="typebox">
+                    <div class="chat-container">
+                        <ul id="chat_list" class="px-2 mb-0">
+
+                        </ul>
+                    </div>
+                    <form id="guess_submit" class="d-flex">
+                        <input type="text" name="type-guess" id="type_guess" class="type-guess"
+                            placeholder="Type your guess">
+                        <input type="image" src="/media/images/submit.png" alt="Submit" class="image-submit"
+                            type="submit_guess_icon">
+                    </form>
+                </div>
+                <div id="submit_drawing" class="d-none">
+                    <button type="button" class="btn custom-btn" id="add_drawing_btn">Add Drawing</button>
+                </div>
             </div>
-            <div class="players-list-container" id="player_list">
-                <!-- <div id="countdown_timer">Time left: <span id="countdown">15</span> seconds</div> -->
+
+            <div class="count-container m-3 d-none">
+                <div id="guess_count">0</div>
+                <!-- Correct Guesses -->
             </div>
-            <div class="type-guess-container d-none" id="typebox">
-                <form id="guess_submit" class="d-flex">
-                    <input type="text" name="type-guess" id="type_guess" class="type-guess">
-                    <input type="image" src="/media/images/submit.png" alt="Submit" class="image-submit"
-                        type="submit_guess_icon">
-                </form>
-            </div>
-            <div id="submit_drawing" class="d-none">
-                <button type="button" class="btn custom-btn" id="add_drawing_btn">Add Drawing</button>
-            </div>
+
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -119,6 +151,7 @@
     <script src="assets/scripts/jquery.min.js"></script>
     <script src="assets/scripts/privateDrawing.js"></script>
     <script>
+        document.getElementById("type_guess").focus();
         window.addEventListener('load', function () {
             // Check if there is an active session (you need to implement this logic)
             const activeSession = localStorage.getItem('drawdash_user');
@@ -127,17 +160,6 @@
             if (!activeSession) {
                 window.location.href = '/'; // Replace '/main-url' with your main URL
             }
-        });
-        // Add an event listener for the beforeunload event
-        window.addEventListener('beforeunload', function(event) {
-            // Cancel the default action (showing the default confirmation dialog)
-            event.preventDefault();
-            // Show a custom confirmation message
-            event.returnValue = '';
-            // You can customize the message to fit your needs
-            const confirmationMessage = 'Are you sure you want to reload?';
-            // Returning the custom message will prompt the user with a confirmation dialog
-            return confirmationMessage;
         });
         $(document).ready(function () {
             const constantModes = ['solo', 'private', 'contribute', 'sketch']
@@ -213,6 +235,8 @@
                     }
                 }
                 $('#start_game').removeClass('d-none');
+                $('.count-container').removeClass('d-none');
+                $('.back-home').removeClass('d-none');
             })
 
             $('#word_start').click(function () {
@@ -224,10 +248,10 @@
                     $('#modal_body p').removeClass('d-none');
                 }
             })
-            $('#start_again').click(function(){
+            $('#start_again').click(function () {
                 window.location.reload();
             });
-            $('.back-home').click(function(){
+            $('.back-home').click(function () {
                 window.location.href = '/home';
             })
         })
