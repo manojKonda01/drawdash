@@ -200,6 +200,7 @@ function drawing() {
     $('#add_drawing_btn').click(function () {
         const word = $('.random-word-btn.selected').attr('id');
         saveDrawingDataforAdmin(word, JSON.stringify(drawingData));
+        drawingData = [];
     })
     $('#clear').click(function () {
         const canvas = document.getElementById('canva_board');
@@ -247,6 +248,7 @@ function soloPlay() {
     let countDownTimer;
     let drawTimer; //Timer to draw
     let guess_count = 0;
+    let seconds = totalTime/1000; // Total Time
 
     drawN(20);
 
@@ -314,11 +316,9 @@ function soloPlay() {
                 }
             })
     }
-    const countDown = $('#round_timer');
     // Function to start the timer for each round
     function startRoundTimer() {
         // Start the timer for the current round
-        // countDownTimer = setInterval(() => { }, 1000)
         roundTimer = setInterval(() => {
             elapsedTime += roundTime;
             console.log('round time: ', elapsedTime, 'total Time : ', totalTime);
@@ -395,10 +395,9 @@ function soloPlay() {
         else{
             imageSrc = 'media/images/avatars/panda.svg';
         }
-        const img = `<img src=${imageSrc} alt='user-image'></img>`
+        const img = `<img src=${imageSrc} alt='user-image'></img>`;
         if (correctGuess) {
             guess_count++;
-            console.log('score: ',guess_count);
             $('#guess_count').text(guess_count);
             clearTimeout(drawTimer);
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
@@ -487,23 +486,7 @@ function soloPlay() {
         // Stroke the line
         ctx.stroke();
     }
-    // function startTimer(duration) {
-    //     let timer = duration;
-    //     const timerDisplay = document.getElementById('timer');
-    //     // Update the timer every second
-    //     const countdownInterval = setInterval(function () {
-    //         timerDisplay.textContent = timer - 1;
-    //         timerDisplay.classList.add('countdown');
-    //         // Check if the timer has reached 0
-    //         if (--timer < 0) {
-    //             clearInterval(countdownInterval);
-    //             // timerDisplay.textContent = 'Timer expired';
-    //             // Add any additional logic to execute when the timer expires
-    //         }
-    //     }, 1000);
-    // }
     function startTimer() {
-        let seconds = 120; // Initial value for seconds
         const timerDisplay = document.getElementById('timer');
         timerDisplay.classList.add('countdown');
         // Function to update the timer display
