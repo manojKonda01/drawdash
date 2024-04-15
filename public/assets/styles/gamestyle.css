@@ -3,10 +3,12 @@
     src: url('/assets/fonts/sports_world/Sports_World_Regular.otf') format('opentype');
 }
 
-html,
+/* html, */
 body {
-    width: 100%;
-    height: 100%;
+    /* width: 100%;
+    height: 100%; */
+    height: 100vh;
+    width: 100vw;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
@@ -19,11 +21,7 @@ body {
     /* background-size: cover; */
     background-attachment: fixed;
     background-size: 100% 100%, 100% 100%;
-    height: 100vh;
-    /* Set the body height to the height of the viewport */
-    margin: 0;
 }
-
 .setting-img {
     background-image: url('/media/images/setting-white.png');
     background-repeat: no-repeat;
@@ -464,7 +462,8 @@ canvas {
 .guess-word-chat {
     font-size: small;
 }
-#guess_count{
+
+#guess_count {
     padding: 0.5rem;
     font-size: 2rem;
     color: var(--primary-blue);
@@ -475,9 +474,11 @@ canvas {
     text-align: center;
     font-weight: 600;
 }
-.back-home{
+
+.back-home {
     cursor: pointer;
 }
+
 @keyframes spin {
     0% {
         transform: rotate(0deg);
@@ -532,14 +533,17 @@ canvas {
         left: 50%;
         transform: translateX(-50%);
     }
-    .game-container{
+
+    .game-container {
         flex-direction: column;
     }
-    .count-container{
+
+    .count-container {
         position: fixed;
         bottom: 0;
     }
-    .back-home svg g{
+
+    .back-home svg g {
         fill: black;
     }
 }

@@ -249,8 +249,11 @@ function soloPlay() {
     let drawTimer; //Timer to draw
     let guess_count = 0;
     let seconds = totalTime/1000; // Total Time
+    let eachRound = roundTime / 1000;
+    let roundInterval;
+    let gameScore = 0;
 
-    drawN(20);
+    drawN(50);
 
     function displayWord(word) {
         const wordContainer = document.getElementById('wordContainer');
@@ -318,6 +321,7 @@ function soloPlay() {
     }
     // Function to start the timer for each round
     function startRoundTimer() {
+        roundInterval = setInterval(eachRoundTime, 1000);
         // Start the timer for the current round
         roundTimer = setInterval(() => {
             elapsedTime += roundTime;
@@ -325,6 +329,7 @@ function soloPlay() {
             if (elapsedTime > totalTime) {
                 // Stop the drawing process if the total time is exceeded
                 clearInterval(roundTimer);
+                clearInterval(roundInterval);
                 // clearInterval(countDownTimer);
                 console.log('Total time exceeded!');
             } else {
@@ -337,6 +342,7 @@ function soloPlay() {
     function advanceToNextRound() {
         // Increment the round index
         currentRound++;
+        eachRound = roundTime / 1000;
         console.log('round', currentRound + 1);
         // Check if all rounds have been completed
         if (currentRound < drawingArray.length) {
@@ -356,6 +362,7 @@ function soloPlay() {
         } else {
             // All rounds have been completed
             clearInterval(roundTimer);
+            clearInterval(roundInterval);
             // clearInterval(countDownTimer);
             if (currentRound == drawingArray.length) {
                 $('#scoreboard').modal({ backdrop: 'static', keyboard: false })
@@ -398,6 +405,7 @@ function soloPlay() {
         const img = `<img src=${imageSrc} alt='user-image'></img>`;
         if (correctGuess) {
             guess_count++;
+            gameScore = gameScore + eachRound;
             $('#guess_count').text(guess_count);
             clearTimeout(drawTimer);
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
@@ -406,6 +414,7 @@ function soloPlay() {
             // Guess is correct, advance to the next round immediately
             $('#start_guessing').text('Your Guess is Right!');
             clearInterval(roundTimer); // Stop the timer for the current round
+            clearInterval(roundInterval);
             // clearInterval(countDownTimer);
             advanceToNextRound();
             startRoundTimer();
@@ -454,8 +463,9 @@ function soloPlay() {
             if (index < drawingData.length) {
                 const line = drawingData[index];
                 const { startX, startY, endX, endY } = line;
-                const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-                const isSmallScreen = viewportWidth <= 767; // Check if the viewport width is less than 767 pixels
+                // const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+                // const isSmallScreen = viewportWidth <= 767; // Check if the viewport width is less than 767 pixels
+                const isSmallScreen = false;
                 const offsetX = isSmallScreen ? 50 : 0; // Adjust this value as needed for small screens
                 const scale = isSmallScreen ? 0.75 : 1;
                 drawLine(startX * scale - offsetX, startY * scale, endX * scale - offsetX, endY * scale);
@@ -486,6 +496,9 @@ function soloPlay() {
         // Stroke the line
         ctx.stroke();
     }
+    function eachRoundTime(){
+        eachRound--;
+    }
     function startTimer() {
         const timerDisplay = document.getElementById('timer');
         timerDisplay.classList.add('countdown');
@@ -497,7 +510,6 @@ function soloPlay() {
                 clearInterval(timerInterval); // Stop the timer when it reaches 120 seconds
             }
         }
-
         // Update the timer display immediately when the function is called
         updateTimer();
 

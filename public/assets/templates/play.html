@@ -17,7 +17,7 @@
 </head>
 
 <body>
-    <div class="position-relative container-fluid p-0">
+    <div class="position-relative p-0 main-container">
         <!-- Modal -->
         <div class="modal text-center pop-out" tabindex="-1" id="gamerules" data-backdrop="static"
             data-keyboard="false">
@@ -129,7 +129,7 @@
                         <input type="text" name="type-guess" id="type_guess" class="type-guess"
                             placeholder="Type your guess">
                         <input type="image" src="/media/images/submit.png" alt="Submit" class="image-submit"
-                            type="submit_guess_icon">
+                            id="submit_guess_icon">
                     </form>
                 </div>
                 <div id="submit_drawing" class="d-none">
@@ -151,7 +151,10 @@
     <script src="assets/scripts/jquery.min.js"></script>
     <script src="assets/scripts/privateDrawing.js"></script>
     <script>
-        document.getElementById("type_guess").focus();
+        const textInput = document.getElementById("type_guess");
+        window.onload = function () {
+            textInput.focus();
+        };
         window.addEventListener('load', function () {
             // Check if there is an active session (you need to implement this logic)
             const activeSession = localStorage.getItem('drawdash_user');
