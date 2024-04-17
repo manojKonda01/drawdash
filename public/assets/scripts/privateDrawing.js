@@ -252,15 +252,15 @@ function soloPlay() {
     let eachRound = roundTime / 1000;
     let roundInterval;
     let gameScore = 0;
+    let rewards = 0;
 
     drawN(50);
 
     function displayWord(word) {
         const wordContainer = document.getElementById('wordContainer');
         wordContainer.innerHTML = ''; // Clear previous content
-
         // Iterate over each letter in the word
-        for (let i = 0; i < word.length; i++) {
+        for (let i = 0; i < word.trim().length; i++) {
             // Create a span element for the letter
             const letterSpan = document.createElement('span');
             //   letterSpan.textContent = word[i];
@@ -406,7 +406,13 @@ function soloPlay() {
         if (correctGuess) {
             guess_count++;
             gameScore = gameScore + eachRound;
+            rewards = rewards + gameScore+guess_count*10;
             $('#guess_count').text(guess_count);
+            $('#final_guess_count').text(guess_count);
+            $('#score').text(gameScore);
+            $('#final_game_score').text(gameScore);
+            $('#guess_percentage').text((guess_count / (currentRound+1)).toFixed(2) * 100 + ' %');
+            $('#rewards').text();
             clearTimeout(drawTimer);
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
             ctx.closePath();
@@ -415,7 +421,6 @@ function soloPlay() {
             $('#start_guessing').text('Your Guess is Right!');
             clearInterval(roundTimer); // Stop the timer for the current round
             clearInterval(roundInterval);
-            // clearInterval(countDownTimer);
             advanceToNextRound();
             startRoundTimer();
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
@@ -426,6 +431,7 @@ function soloPlay() {
         }
         chatList.appendChild(listItem);
         chatList.scrollTop = chatList.scrollHeight;
+        console.log('score: ', gameScore)
     }
 
     // funtion to start drawing process
@@ -463,12 +469,13 @@ function soloPlay() {
             if (index < drawingData.length) {
                 const line = drawingData[index];
                 const { startX, startY, endX, endY } = line;
-                // const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-                // const isSmallScreen = viewportWidth <= 767; // Check if the viewport width is less than 767 pixels
-                const isSmallScreen = false;
+                const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+                const isSmallScreen = viewportWidth <= 767; // Check if the viewport width is less than 767 pixels
+                // const isSmallScreen = false;
                 const offsetX = isSmallScreen ? 50 : 0; // Adjust this value as needed for small screens
                 const scale = isSmallScreen ? 0.75 : 1;
                 drawLine(startX * scale - offsetX, startY * scale, endX * scale - offsetX, endY * scale);
+                // drawLine(startX * scale - offsetX, startY, endX * scale - offsetX, endY);
                 index++;
                 drawTimer = setTimeout(drawNextLine, 5); // Adjust the delay between lines (100 milliseconds in this example)
             }

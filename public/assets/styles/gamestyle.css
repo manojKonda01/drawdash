@@ -463,22 +463,45 @@ canvas {
     font-size: small;
 }
 
-#guess_count {
+#guess_count, .game-score{
     padding: 0.5rem;
-    font-size: 2rem;
     color: var(--primary-blue);
     border-radius: 4px;
     border: 2px solid rgb(217, 239, 255);
     background-color: rgb(240, 249, 255);
-    width: 60px;
     text-align: center;
     font-weight: 600;
 }
-
+#guess_count{
+    width: 60px;
+    font-size: 2rem;
+}
 .back-home {
     cursor: pointer;
 }
-
+#scoreboard_body{
+    font-family: "Manrope",sans-serif;
+}
+#scoreboard_body p{
+    color: #7e7e7e;
+}
+.stats{
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+#guess_percentage, #final_guess_count{
+    color: #F79327;
+}
+.ml-auto{
+    margin-left: auto !important;
+}
+.mr-auto{
+    margin-right: auto !important;
+}
+.d-24{
+    width: 24px;
+    height: 24px;
+}
 @keyframes spin {
     0% {
         transform: rotate(0deg);
@@ -538,7 +561,7 @@ canvas {
         flex-direction: column;
     }
 
-    .count-container {
+    .score-container {
         position: fixed;
         bottom: 0;
     }

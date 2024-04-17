@@ -60,14 +60,40 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="scoreboard_title">Game Score Board</h5>
+                        <h5 class="modal-title" id="scoreboard_title">SCORE BOARD</h5>
                     </div>
                     <div class="modal-body">
-                        <div id="scoreboard_body" class="d-flex"></div>
+                        <div id="scoreboard_body">
+                            <img src="media/images/stats.png" alt="stats-img" width="48" height="48" class="m-2">
+                            <h4 class="mb-3">Game Stats</h4>
+                            <div class="stats mx-4 mb-4 p-3">
+                                <h2 id="final_guess_count">0</h2>
+                                <p>drawings guessed in</p>
+                                <h6>120s</h6>
+                            </div>
+                            <div class="d-flex mx-4">
+                                <h6 class="mr-auto">final score</h6>
+                                <p class="ml-auto" id="final_game_score">0</p>
+                                <span class="ml-1 d-24"></span>
+                            </div>
+                            <div class="d-flex mx-4">
+                                <h6 class="mr-auto">rewards</h6>
+                                <div class="ml-auto d-flex align-items-center"><p class="m-0">+</p>&nbsp;<p id="rewards" class="m-0">0</p>
+                                    <img src="media/images/rewards.png"
+                                        alt="rewards-img" width="24" height="24" class="ml-1">
+                                </div>
+                            </div>
+                            <div class="stats mx-4 mt-4 p-3">
+                                <img src="" alt="user-image" id="user_image" referrerpolicy="no-referrer" class="m-2"
+                                    width="48" height="48">
+                                <p>Guess Percentage</p>
+                                <h4 id="guess_percentage">0%</h4>
+                            </div>
+                        </div>
                         <p class="text-danger mt-4 d-none"></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn custom-btn" id="start_again">START AGAIN</button>
+                        <button type="button" class="btn custom-btn" id="start_again">PLAY AGAIN</button>
                         <button type="button" class="btn custom-btn back-home">HOME</button>
                     </div>
                 </div>
@@ -137,11 +163,14 @@
                 </div>
             </div>
 
-            <div class="count-container m-3 d-none">
-                <div id="guess_count">0</div>
-                <!-- Correct Guesses -->
+            <div class="score-container d-none flex-column align-items-center justify-content-center">
+                <div class="m-3">
+                    <div class="game-score">Game Score: <span id="score">0</span></div>
+                </div>
+                <div class="m-3">
+                    <div id="guess_count">0</div>
+                </div>
             </div>
-
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -152,6 +181,8 @@
     <script src="assets/scripts/privateDrawing.js"></script>
     <script>
         const textInput = document.getElementById("type_guess");
+        const user_image = document.getElementById('user_image');
+        const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
         window.onload = function () {
             textInput.focus();
         };
@@ -164,6 +195,12 @@
                 window.location.href = '/'; // Replace '/main-url' with your main URL
             }
         });
+        if (userSession.imageurl) {
+            user_image.src = userSession.imageurl;
+        }
+        else {
+            user_image.src = 'media/images/avatars/panda.svg';
+        }
         $(document).ready(function () {
             const constantModes = ['solo', 'private', 'contribute', 'sketch']
             $('#gamerules').modal({ backdrop: 'static', keyboard: false })
@@ -238,7 +275,8 @@
                     }
                 }
                 $('#start_game').removeClass('d-none');
-                $('.count-container').removeClass('d-none');
+                $('.score-container').removeClass('d-none');
+                $('.score-container').addClass('d-flex');
                 $('.back-home').removeClass('d-none');
             })
 
