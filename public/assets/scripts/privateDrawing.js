@@ -406,13 +406,13 @@ function soloPlay() {
         if (correctGuess) {
             guess_count++;
             gameScore = gameScore + eachRound;
-            rewards = rewards + gameScore+guess_count*10;
+            rewards = gameScore+guess_count*10;
             $('#guess_count').text(guess_count);
             $('#final_guess_count').text(guess_count);
             $('#score').text(gameScore);
             $('#final_game_score').text(gameScore);
             $('#guess_percentage').text((guess_count / (currentRound+1)).toFixed(2) * 100 + ' %');
-            $('#rewards').text();
+            $('#rewards').text(rewards);
             clearTimeout(drawTimer);
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
             ctx.closePath();
