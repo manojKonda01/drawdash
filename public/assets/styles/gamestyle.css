@@ -3,10 +3,12 @@
     src: url('/assets/fonts/sports_world/Sports_World_Regular.otf') format('opentype');
 }
 
-html,
+/* html, */
 body {
-    width: 100%;
-    height: 100%;
+    /* width: 100%;
+    height: 100%; */
+    height: 100vh;
+    width: 100vw;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
@@ -19,14 +21,6 @@ body {
     /* background-size: cover; */
     background-attachment: fixed;
     background-size: 100% 100%, 100% 100%;
-    display: flex;
-    justify-content: center;
-    /* Horizontally center the container */
-    align-items: center;
-    /* Vertically center the container */
-    height: 100vh;
-    /* Set the body height to the height of the viewport */
-    margin: 0;
 }
 
 .setting-img {
@@ -119,10 +113,15 @@ body {
 #sound_on,
 #sound_off,
 .setting-img,
-#settings {
+#settings,
+#contribute {
     cursor: pointer;
 }
 
+/* #contribute:hover{
+    color: black;
+    background: white;
+} */
 .modal-title,
 .modal-footer {
     font-family: 'sports-world';
@@ -171,51 +170,132 @@ body {
     font-family: 'sports-world';
 }
 
-/* .canvas-container,
+.canvas-container,
 .type-guess-container,
-#submit_drawing {
+#submit_drawing,
+.brush-container {
     margin-left: 2rem;
     margin-right: 2rem;
 }
 
-.canvas-container {
-    margin-top: 4rem;
-    margin-bottom: 1.5rem;
-} */
+.brush-container {
+    background: white;
+    border-radius: 2rem;
+    box-shadow: 0 1px 14px 0 rgba(0, 0, 0, 0.25);
+    width: 60vw;
+}
+
+#brushSize {
+    width: 60%;
+}
 
 canvas {
     cursor: pointer;
 }
-.canvas-board{
-    width: 60vw;
-    height: 70vh;
-}
+
 .canvas-board,
 .type-guess {
-    border: 1px solid black;
+    width: 60vw;
+    height: 70vh;
+    border: none;
+    box-shadow: 0 1px 14px 0 rgba(0, 0, 0, 0.25);
     background-color: white;
 }
 
-/* .canvas-container {
-    width: 60vw;
-    height: 70vh;
-} */
+.canvas-container {
+    /* width: 60vw;
+    height: 70vh; */
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.undo-redo {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.word-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin-left: auto;
+    margin-right: auto;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#undo,
+#redo,
+#clear,
+#eraser,
+#paint {
+    border-radius: 50%;
+    border: 1px solid #d9d9d9;
+    font-family: Gilroy;
+    font-weight: 500;
+    line-height: 1;
+}
+
+#download {
+    border-radius: 4px;
+    border: 1px solid #d9d9d9;
+    font-family: Gilroy;
+    font-weight: 500;
+    line-height: 1;
+}
+
+#download:hover,
+#undo:hover,
+#redo:hover {
+    border: 1px solid white;
+    background: #3498db;
+}
+
+#download:hover svg .main-fill,
+#undo:hover svg path,
+#redo:hover svg path {
+    fill: white;
+}
+
+#paint:hover svg path,
+#eraser:hover svg path {
+    fill: #3498db;
+}
+
+#paint:hover,
+#eraser:hover {
+    border: 1px solid #3498db;
+}
+
+#clear:hover svg path {
+    fill: #F70F18;
+}
+
 
 .type-guess {
     height: 3rem;
     padding: 0 1rem;
+    border-right: 0;
 }
 
 .image-submit {
-    position: relative;
-    left: -48px;
+    background-color: white;
     width: 48px;
     padding: 0.5rem;
-    border-left: 0;
+    border: none;
 }
 
 .type-guess:focus {
     outline: none;
+    border-color: #40a9ff;
+}
+
+.type-guess:focus+.image-submit {
+    border-color: #40a9ff;
 }
 
 .custom-lg {
@@ -265,10 +345,6 @@ canvas {
     color: white;
     padding-left: 0.5rem;
     text-shadow: -1px 0 #F70F18, 0 1px #F70F18, 1px 0 #F70F18, 0 -1px #F70F18;
-}
-
-#clear {
-    right: 0;
 }
 
 .loader-wrapper {
@@ -331,7 +407,8 @@ canvas {
     background-color: white;
     /* White background */
 }
-.icon-selected{
+
+.icon-selected {
     position: absolute;
     top: 0;
     right: 0;
@@ -341,30 +418,36 @@ canvas {
     padding: 0.25rem;
     border-radius: 50%;
 }
+
 .avatar-img {
     object-fit: cover;
     /* Ensure the image covers the entire container */
 }
-.custom-btn-2{
+
+.custom-btn-2 {
     border: 1px solid white;
     border-radius: 1.5rem;
     color: white;
 }
-.custom-btn-2:hover{
+
+.custom-btn-2:hover {
     background: white;
     color: black;
 }
+
 /* Style for the word container */
-#wordContainer{
+#wordContainer {
     display: flex;
     align-items: center;
     justify-content: center;
 }
-#timer{
+
+#timer {
     width: 36px;
     height: 36px;
 }
-.countdown{
+
+.countdown {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -374,6 +457,7 @@ canvas {
     background: white;
     border: 2px solid #F70F18;
 }
+
 /* Style for each letter */
 .letter {
     border-bottom: 2px solid black;
@@ -382,11 +466,110 @@ canvas {
     margin: 0 5px;
     /* Adjust the spacing between letters as needed */
 }
-#start_game{
+
+#chat_list,
+#guess_submit {
+    position: absolute;
+    width: 100%;
+}
+
+#chat_list {
+    width: 100%;
+    border-radius: 4px;
+    z-index: 999;
+    bottom: 0;
+    max-height: 150px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+#chat_list img {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+}
+
+#chat_list::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    display: none\9;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    opacity: 0;
+    -webkit-transition: all .3s;
+    transition: all .3s;
+    content: "";
+    pointer-events: none;
+}
+
+.chat-item {
     display: flex;
     align-items: center;
-    justify-content: center;
+    font-size: small;
+    list-style-type: none;
 }
+
+.guess-word-chat {
+    font-size: small;
+}
+
+#guess_count,
+.game-score {
+    padding: 0.5rem;
+    color: var(--primary-blue);
+    border-radius: 4px;
+    border: 2px solid rgb(217, 239, 255);
+    background-color: rgb(240, 249, 255);
+    text-align: center;
+    font-weight: 600;
+}
+
+#guess_count {
+    width: 60px;
+    font-size: 2rem;
+}
+
+.back-home {
+    cursor: pointer;
+}
+
+#scoreboard_body {
+    font-family: "Manrope", sans-serif;
+}
+
+#scoreboard_body p {
+    color: #7e7e7e;
+}
+
+.stats {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+#guess_percentage,
+#final_guess_count {
+    color: #F79327;
+}
+
+.ml-auto {
+    margin-left: auto !important;
+}
+
+.mr-auto {
+    margin-right: auto !important;
+}
+
+.d-24 {
+    width: 24px;
+    height: 24px;
+}
+
 @keyframes spin {
     0% {
         transform: rotate(0deg);
@@ -421,7 +604,8 @@ canvas {
         width: 80vw;
     }
 
-    .type-guess {
+    .type-guess,
+    .brush-container {
         width: 80vw;
         border-right: 0;
     }
@@ -433,6 +617,36 @@ canvas {
         border-left: 0;
         background-color: white;
         width: 42px;
+    }
+
+    .word-container {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .game-container {
+        flex-direction: column;
+    }
+
+    .score-container {
+        position: fixed;
+        bottom: 0;
+    }
+
+    .back-home svg g {
+        fill: black;
+    }
+
+    #undo,
+    #redo {
+        border: 1px solid white;
+        background: #3498db;
+    }
+    #undo svg path,
+    #redo svg path {
+        fill: white;
     }
 }
 

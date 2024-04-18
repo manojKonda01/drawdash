@@ -1,12 +1,10 @@
-const socket = io();
-
 let roomID;
 let playerName;
-
-
+let reload = false;
 
 const canvas = document.getElementById('canva_board');
 const ctx = canvas.getContext('2d');
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="16" height="16" viewBox="0,0,256,256" style="fill:#000000;"> <g fill="none" fill-rule="nonzero" stroke="none" stroke-width="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(6.4,6.4)"><path d="M20,38.5c-10.2,0 -18.5,-8.3 -18.5,-18.5c0,-10.2 8.3,-18.5 18.5,-18.5c10.2,0 18.5,8.3 18.5,18.5c0,10.2 -8.3,18.5 -18.5,18.5z" fill="#326400" stroke="none" stroke-width="1"></path><path d="M20,2c9.9,0 18,8.1 18,18c0,9.9 -8.1,18 -18,18c-9.9,0 -18,-8.1 -18,-18c0,-9.9 8.1,-18 18,-18M20,1c-10.5,0 -19,8.5 -19,19c0,10.5 8.5,19 19,19c10.5,0 19,-8.5 19,-19c0,-10.5 -8.5,-19 -19,-19z" fill="#326400" stroke="none" stroke-width="1"></path><path d="M11.2,20.1l5.8,5.8l13.2,-13.2" fill="none" stroke="#ffffff" stroke-width="3"></path></g></g></svg>`
 // Function to set canvas size based on CSS size
 function setCanvasSize() {
     const computedStyle = getComputedStyle(canvas);
@@ -21,16 +19,21 @@ function clearCanvas() {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
-function drawing() {
+function drawing(saveDrawingData) {
     const canvas = document.getElementById('canva_board');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
     let lastX = 0;
     let lastY = 0;
+    let isErasing = false;
 
     let history = [''];
     let drawingData = []; // Array to store drawing data
     let historyIndex = -1;
+
+    $('#paint svg path').css('fill', '#3498db');
+    $('#paint').css('border', '1px solid #3498db');
+
     // to draw on mouse events
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.addEventListener('mousedown', startDrawing);
@@ -60,16 +63,19 @@ function drawing() {
         const startY = lastY;
         const endX = touch.clientX - canvas.getBoundingClientRect().left;
         const endY = touch.clientY - canvas.getBoundingClientRect().top;
+        const lineWidth = document.getElementById('brushSize').value;
         const line = {
             startX: startX,
             startY: startY,
             endX: endX,
             endY: endY,
             color: 'black', // Add color property as needed
-            lineWidth: 2, // Add line width property as needed
+            lineWidth: lineWidth ? lineWidth : 2, // Add line width property as needed
         };
-        drawingData.push(line);
-        drawLine(startX, startY, endX, endY);
+        if (saveDrawingData) {
+            drawingData.push(line);
+        }
+        drawLine(startX, startY, endX, endY, lineWidth);
         [lastX, lastY] = [endX, endY];
     }
 
@@ -90,29 +96,50 @@ function drawing() {
         const startY = lastY;
         const endX = e.offsetX;
         const endY = e.offsetY;
-
+        const lineWidth = document.getElementById('brushSize').value;
         const line = {
             startX: startX,
             startY: startY,
             endX: endX,
             endY: endY,
             color: 'black', // Add color property as needed
-            lineWidth: 2, // Add line width property as needed
+            lineWidth: lineWidth ? lineWidth : 2, // Add line width property as needed
         };
-        drawingData.push(line);
-        drawLine(startX, startY, endX, endY);
+        if (saveDrawingData) {
+            drawingData.push(line);
+        }
+        drawLine(startX, startY, endX, endY, lineWidth);
         [lastX, lastY] = [endX, endY];
     }
+
+    $('#eraser').click(function () {
+        isErasing = true;
+        $('#eraser svg path').css('fill', '#3498db');
+        $('#eraser').css('border', '1px solid #3498db');
+
+        $('#paint svg path').css('fill', '#d9d9d9');
+        $('#paint').css('border', '1px solid #d9d9d9');
+    })
+    $('#paint').click(() => {
+        isErasing = false;
+        $('#eraser svg path').css('fill', '#d9d9d9');
+        $('#eraser').css('border', '1px solid #d9d9d9');
+
+        $('#paint svg path').css('fill', '#3498db');
+        $('#paint').css('border', '1px solid #3498db');
+    })
     // Function to draw a line on the canvas
-    function drawLine(startX, startY, endX, endY) {
+    function drawLine(startX, startY, endX, endY, lineWidth) {
         const canvas = document.getElementById('canva_board');
         const ctx = canvas.getContext('2d');
+        ctx.strokeStyle = isErasing ? '#FFFFFF' : 'black';
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
         // Start a new path
         ctx.beginPath();
 
         // Set the line style
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = lineWidth;
 
         // Move to the starting point
         ctx.moveTo(startX, startY);
@@ -201,7 +228,10 @@ function drawing() {
     }
     $('#add_drawing_btn').click(function () {
         const word = $('.random-word-btn.selected').attr('id');
-        saveDrawingDataforAdmin(word, JSON.stringify(drawingData));
+        if (saveDrawingData) {
+            saveDrawingDataforAdmin(word, JSON.stringify(drawingData));
+            drawingData = [];
+        }
     })
     $('#clear').click(function () {
         const canvas = document.getElementById('canva_board');
@@ -211,6 +241,7 @@ function drawing() {
     });
 
 }
+
 function generateRandomWords() {
     fetch('/random_words', {
         method: 'GET',
@@ -233,9 +264,11 @@ function generateRandomWords() {
             $('#random_word_modal').modal('show');
         })
 }
+
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
 function soloPlay() {
     const canvas = document.getElementById('canva_board');
     const ctx = canvas.getContext('2d');
@@ -248,14 +281,20 @@ function soloPlay() {
     let roundTimer; // Timer for each round
     let countDownTimer;
     let drawTimer; //Timer to draw
-    drawN(20);
+    let guess_count = 0;
+    let seconds = totalTime / 1000; // Total Time
+    let eachRound = roundTime / 1000;
+    let roundInterval;
+    let gameScore = 0;
+    let rewards = 0;
+
+    drawN(50);
 
     function displayWord(word) {
         const wordContainer = document.getElementById('wordContainer');
         wordContainer.innerHTML = ''; // Clear previous content
-
         // Iterate over each letter in the word
-        for (let i = 0; i < word.length; i++) {
+        for (let i = 0; i < word.trim().length; i++) {
             // Create a span element for the letter
             const letterSpan = document.createElement('span');
             //   letterSpan.textContent = word[i];
@@ -305,6 +344,7 @@ function soloPlay() {
             .then(response => response.json())
             .then(json => {
                 if (json.data) {
+                    $('.loader-wrapper').addClass('d-none');
                     drawingArray = json.data;
                     startDrawingProcess();
                 }
@@ -313,17 +353,17 @@ function soloPlay() {
                 }
             })
     }
-    const countDown = $('#round_timer');
     // Function to start the timer for each round
     function startRoundTimer() {
+        roundInterval = setInterval(eachRoundTime, 1000);
         // Start the timer for the current round
-        // countDownTimer = setInterval(() => { }, 1000)
         roundTimer = setInterval(() => {
             elapsedTime += roundTime;
             console.log('round time: ', elapsedTime, 'total Time : ', totalTime);
             if (elapsedTime > totalTime) {
                 // Stop the drawing process if the total time is exceeded
                 clearInterval(roundTimer);
+                clearInterval(roundInterval);
                 // clearInterval(countDownTimer);
                 console.log('Total time exceeded!');
             } else {
@@ -336,6 +376,7 @@ function soloPlay() {
     function advanceToNextRound() {
         // Increment the round index
         currentRound++;
+        eachRound = roundTime / 1000;
         console.log('round', currentRound + 1);
         // Check if all rounds have been completed
         if (currentRound < drawingArray.length) {
@@ -355,10 +396,12 @@ function soloPlay() {
         } else {
             // All rounds have been completed
             clearInterval(roundTimer);
+            clearInterval(roundInterval);
             // clearInterval(countDownTimer);
             if (currentRound == drawingArray.length) {
                 $('#scoreboard').modal({ backdrop: 'static', keyboard: false })
                 $('#scoreboard').modal('show');
+                reload = false;
             }
             console.log('All rounds completed!');
             // open Leader Board
@@ -380,28 +423,54 @@ function soloPlay() {
     // Function to handle player's guess
     function handlePlayerGuess(guess) {
         // Check if the guess is correct
-        const correctGuess = $('#hidden_word').val() == guess;
+        const correctGuess = $('#hidden_word').val().toUpperCase() == guess.toUpperCase();
+        const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
+        var listItem = document.createElement('li');
+        const chatList = document.getElementById('chat_list');
+
+        listItem.classList.add('chat-item', 'py-1');
+        var imageSrc = '';
+        if (userSession.imageurl) {
+            imageSrc = userSession.imageurl;
+        }
+        else {
+            imageSrc = 'media/images/avatars/panda.svg';
+        }
+        const img = `<img src=${imageSrc} alt='user-image'></img>`;
         if (correctGuess) {
+            guess_count++;
+            gameScore = gameScore + eachRound;
+            rewards = gameScore + guess_count * 10;
+            $('#guess_count').text(guess_count);
+            $('#final_guess_count').text(guess_count);
+            $('#score').text(gameScore);
+            $('#final_game_score').text(gameScore);
+            $('#guess_percentage').text((guess_count / (currentRound + 1)).toFixed(2) * 100 + ' %');
+            $('#rewards').text(rewards);
             clearTimeout(drawTimer);
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
             ctx.closePath();
-
+            listItem.innerHTML = img + `<span class='guess-word-chat px-1'>Correct!<span>` + svg;
             // Guess is correct, advance to the next round immediately
             $('#start_guessing').text('Your Guess is Right!');
             clearInterval(roundTimer); // Stop the timer for the current round
-            // clearInterval(countDownTimer);
+            clearInterval(roundInterval);
             advanceToNextRound();
             startRoundTimer();
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
         } else {
+            listItem.innerHTML = img + `<span class='guess-word-chat px-1'>${guess}<span>`;
             // Guess is incorrect, continue with the timer for the current round
             console.log('Incorrect guess. Waiting for round timer to expire.');
         }
+        chatList.appendChild(listItem);
+        chatList.scrollTop = chatList.scrollHeight;
     }
 
     // funtion to start drawing process
     function startDrawingProcess() {
         startTimer();
+        reload = true;
         let jsonString = JSON.stringify(JSON.parse(drawingArray[currentRound].data))
         $('#hidden_word').val(drawingArray[currentRound].word);
         displayWord(drawingArray[currentRound].word);
@@ -420,6 +489,7 @@ function soloPlay() {
             $('#scoreboard').modal({ backdrop: 'static', keyboard: false })
             $('#scoreboard').modal('show');
             console.log('Drawing process completed!');
+            reload = false;
             // You can add any additional logic here when the total duration is reached
         }, totalTime);
     }
@@ -434,9 +504,11 @@ function soloPlay() {
                 const { startX, startY, endX, endY } = line;
                 const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
                 const isSmallScreen = viewportWidth <= 767; // Check if the viewport width is less than 767 pixels
+                // const isSmallScreen = false;
                 const offsetX = isSmallScreen ? 50 : 0; // Adjust this value as needed for small screens
                 const scale = isSmallScreen ? 0.75 : 1;
                 drawLine(startX * scale - offsetX, startY * scale, endX * scale - offsetX, endY * scale);
+                // drawLine(startX * scale - offsetX, startY, endX * scale - offsetX, endY);
                 index++;
                 drawTimer = setTimeout(drawNextLine, 5); // Adjust the delay between lines (100 milliseconds in this example)
             }
@@ -464,23 +536,10 @@ function soloPlay() {
         // Stroke the line
         ctx.stroke();
     }
-    // function startTimer(duration) {
-    //     let timer = duration;
-    //     const timerDisplay = document.getElementById('timer');
-    //     // Update the timer every second
-    //     const countdownInterval = setInterval(function () {
-    //         timerDisplay.textContent = timer - 1;
-    //         timerDisplay.classList.add('countdown');
-    //         // Check if the timer has reached 0
-    //         if (--timer < 0) {
-    //             clearInterval(countdownInterval);
-    //             // timerDisplay.textContent = 'Timer expired';
-    //             // Add any additional logic to execute when the timer expires
-    //         }
-    //     }, 1000);
-    // }
+    function eachRoundTime() {
+        eachRound--;
+    }
     function startTimer() {
-        let seconds = 120; // Initial value for seconds
         const timerDisplay = document.getElementById('timer');
         timerDisplay.classList.add('countdown');
         // Function to update the timer display
@@ -491,7 +550,6 @@ function soloPlay() {
                 clearInterval(timerInterval); // Stop the timer when it reaches 120 seconds
             }
         }
-
         // Update the timer display immediately when the function is called
         updateTimer();
 
@@ -503,6 +561,7 @@ function soloPlay() {
     }
 }
 function joinRoom() {
+    const socket = io();
     roomID = document.getElementById('roomID').value;
     playerName = document.getElementById('playerName').value;
 
@@ -698,3 +757,17 @@ function submitGuess() {
     playerName = document.getElementById('playerName').value;
     socket.emit('guess', roomID, playerName, guess);
 }
+
+// Add an event listener for the beforeunload event
+window.addEventListener('beforeunload', function (event) {
+    if (reload) {
+        // Cancel the default action (showing the default confirmation dialog)
+        event.preventDefault();
+        // Show a custom confirmation message
+        event.returnValue = '';
+        // You can customize the message to fit your needs
+        const confirmationMessage = 'Are you sure you want to reload?';
+        // Returning the custom message will prompt the user with a confirmation dialog
+        return confirmationMessage;
+    }
+});

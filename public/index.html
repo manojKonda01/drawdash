@@ -81,6 +81,10 @@
 </head>
 
 <body>
+    <audio  src="media/audio/main_bgm.mp3" id="audioPlayer" loop="loop" autoplay="autoplay">
+        <!-- <source src="media/audio/main_bgm.mp3" type="audio/mpeg">
+        Your browser does not support the audio element. -->
+    </audio>
     <div class="position-relative container-fluid p-0 center-container">
         <div class="position-absolute top-0 end-0 p-3">
             <figure>
@@ -149,7 +153,11 @@
         const banner = document.getElementById('game_banner');
         const register_txt = document.getElementById('register_txt');
         const loader = document.getElementById('loader');
+        const audio = document.getElementById('audioPlayer');
 
+        window.onload = function () {
+            audio.play();
+        }
         function validateUsername(username) {
             // Regular expression to match valid usernames
             const usernameRegex = /^[a-zA-Z0-9_]{3,16}$/; // Allows letters (both uppercase and lowercase), numbers, and underscores. Length between 3 and 16 characters.
@@ -160,11 +168,13 @@
         sound_on.addEventListener('click', function () {
             sound_on.classList.add('d-none');
             sound_off.classList.remove('d-none');
+            audio.pause();
         });
 
         sound_off.addEventListener('click', function () {
             sound_off.classList.add('d-none');
             sound_on.classList.remove('d-none');
+            audio.play();
         });
 
         lets_go.addEventListener('click', function () {
