@@ -96,13 +96,14 @@ function drawing(saveDrawingData) {
         const startY = lastY;
         const endX = e.offsetX;
         const endY = e.offsetY;
+        const color = $('#colorValue').val();
         const lineWidth = document.getElementById('brushSize').value;
         const line = {
             startX: startX,
             startY: startY,
             endX: endX,
             endY: endY,
-            color: 'black', // Add color property as needed
+            color: color, // Add color property as needed
             lineWidth: lineWidth ? lineWidth : 2, // Add line width property as needed
         };
         if (saveDrawingData) {
@@ -132,7 +133,7 @@ function drawing(saveDrawingData) {
     function drawLine(startX, startY, endX, endY, lineWidth) {
         const canvas = document.getElementById('canva_board');
         const ctx = canvas.getContext('2d');
-        ctx.strokeStyle = isErasing ? '#FFFFFF' : 'black';
+        ctx.strokeStyle = isErasing ? '#FFFFFF' : $('#colorValue').val();
         ctx.lineJoin = 'round';
         ctx.lineCap = 'round';
         // Start a new path
@@ -202,6 +203,7 @@ function drawing(saveDrawingData) {
     })
 
     function saveDrawingDataforAdmin(word, drawingData) {
+        $('.loader-wrapper').removeClass('d-none');
         fetch('/add_drawing_data', {
             method: 'POST',
             headers: {
@@ -213,6 +215,7 @@ function drawing(saveDrawingData) {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
+                $('.loader-wrapper').addClass('d-none');
                 const canvas = document.getElementById('canva_board');
                 const ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -501,13 +504,13 @@ function soloPlay() {
         function drawNextLine() {
             if (index < drawingData.length) {
                 const line = drawingData[index];
-                const { startX, startY, endX, endY } = line;
+                const { startX, startY, endX, endY, lineWidth, color} = line;
                 const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
                 const isSmallScreen = viewportWidth <= 767; // Check if the viewport width is less than 767 pixels
                 // const isSmallScreen = false;
                 const offsetX = isSmallScreen ? 50 : 0; // Adjust this value as needed for small screens
                 const scale = isSmallScreen ? 0.75 : 1;
-                drawLine(startX * scale - offsetX, startY * scale, endX * scale - offsetX, endY * scale);
+                drawLine(startX * scale - offsetX, startY * scale, endX * scale - offsetX, endY * scale, lineWidth, color);
                 // drawLine(startX * scale - offsetX, startY, endX * scale - offsetX, endY);
                 index++;
                 drawTimer = setTimeout(drawNextLine, 5); // Adjust the delay between lines (100 milliseconds in this example)
@@ -517,15 +520,17 @@ function soloPlay() {
         drawNextLine();
     }
     // Function to draw a line on the canvas
-    function drawLine(startX, startY, endX, endY) {
+    function drawLine(startX, startY, endX, endY, lineWidth, color) {
         const canvas = document.getElementById('canva_board');
         const ctx = canvas.getContext('2d');
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
         // Start a new path
         ctx.beginPath();
 
         // Set the line style
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
 
         // Move to the starting point
         ctx.moveTo(startX, startY);
@@ -771,3 +776,21 @@ window.addEventListener('beforeunload', function (event) {
         return confirmationMessage;
     }
 });
+
+// Function to save the canvas as an image
+function saveCanvasAsImage() {
+    // Get the canvas element
+    const canvas = document.getElementById('canva_board');
+    const fileName = window.prompt('Save as: (should save in .png format)', 'canvas_image.png');
+    if (!fileName) return;
+    // Get the data URL representing the canvas content
+    const dataURL = canvas.toDataURL();
+
+    // Create a link element to download the image
+    const link = document.createElement('a');
+    link.download = fileName;
+    link.href = dataURL;
+
+    // Simulate a click on the link to trigger the download
+    link.click();
+}
