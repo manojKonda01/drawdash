@@ -63,13 +63,14 @@ function drawing(saveDrawingData) {
         const startY = lastY;
         const endX = touch.clientX - canvas.getBoundingClientRect().left;
         const endY = touch.clientY - canvas.getBoundingClientRect().top;
+        const color = $('#colorValue').val();
         const lineWidth = document.getElementById('brushSize').value;
         const line = {
             startX: startX,
             startY: startY,
             endX: endX,
             endY: endY,
-            color: 'black', // Add color property as needed
+            color: color, // Add color property as needed
             lineWidth: lineWidth ? lineWidth : 2, // Add line width property as needed
         };
         if (saveDrawingData) {
