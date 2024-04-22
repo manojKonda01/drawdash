@@ -24,8 +24,14 @@
         <div class="container text-white pop-out d-flex" id="game_banner">
             <div class="d-grid">
                 <div class="board-top d-flex">
-                    <div class="volume invisible">
-                        <img src="media/images/volume.png" alt="">
+                    <div class="volume">
+                        <audio  src="media/audio/main_bgm.mp3" id="audioPlayer" loop="loop" autoplay="autoplay"></audio>
+                        <div id="sound_on">
+                            <img src="media/images/sound_white.png" alt="sound" width="32" height="32">
+                        </div>
+                        <div id="sound_off" class="d-none">
+                            <img src="media/images/mute_white.png" alt="mute" width="32" height="32">
+                        </div>
                     </div>
                     <div class="board-head container w-50">
                         <div class="l-dot white-dot"></div>
@@ -34,14 +40,6 @@
                         </div>
                         <div id="get_username" class="mx-2"></div>
                         <div class="r-dot white-dot"></div>
-                    </div>
-                    <div class="volume invisible">
-                        <div id="sound_on">
-                            <img src="media/images/volume-white.png" alt="sound">
-                        </div>
-                        <div id="sound_off" class="d-none">
-                            <img src="media/images/mute-white.png" alt="mute">
-                        </div>
                     </div>
                     <div id="settings">
                         <img src="media/images/setting-white.png" alt="settings-icon">
@@ -58,7 +56,7 @@
                         <p class="mode-txt px-3 py-2">PRIVATE ROOM</p>
                     </div>
                     <div class="mode-btn" id="sketch">
-                        <p class="mode-txt px-3 py-2">SKETCH</p>
+                        <p class="mode-txt px-3 py-2">SKETCH & SAVE</p>
                     </div>
                 </div>
             </div>
@@ -86,7 +84,11 @@
         const user_image = document.getElementById('user_image');
         const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
         const setting = document.getElementById('settings');
+        const audio = document.getElementById('audioPlayer');
 
+        window.onload = function () {
+            audio.play();
+        }
         setting.addEventListener('click', function(){
             window.location.href = '/settings';
         })
@@ -101,11 +103,13 @@
         sound_on.addEventListener('click', function () {
             sound_on.classList.add('d-none');
             sound_off.classList.remove('d-none');
+            audio.pause();
         });
 
         sound_off.addEventListener('click', function () {
             sound_off.classList.add('d-none');
             sound_on.classList.remove('d-none');
+            audio.play();
         });
 
         const modes = document.querySelectorAll('.mode-btn');

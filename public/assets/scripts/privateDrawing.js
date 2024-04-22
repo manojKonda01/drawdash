@@ -269,6 +269,8 @@ function capitalizeFirstLetter(string) {
 }
 
 function soloPlay() {
+    const start_audio = document.getElementById('start_sound');
+    const end_audio = document.getElementById('end_sound');
     const canvas = document.getElementById('canva_board');
     const ctx = canvas.getContext('2d');
     let drawingArray = [];
@@ -400,7 +402,10 @@ function soloPlay() {
             clearInterval(roundInterval);
             // clearInterval(countDownTimer);
             if (currentRound == drawingArray.length) {
-                $('#scoreboard').modal({ backdrop: 'static', keyboard: false })
+                if($('#sound_off').hasClass('d-none')){
+                    end_audio.play();
+                }
+                $('#scoreboard').modal({ backdrop: 'static', keyboard: false });
                 $('#scoreboard').modal('show');
                 reload = false;
             }
@@ -423,6 +428,7 @@ function soloPlay() {
     }
     // Function to handle player's guess
     function handlePlayerGuess(guess) {
+        const correct_audio = document.getElementById('correct_sound');
         // Check if the guess is correct
         const correctGuess = $('#hidden_word').val().toUpperCase() == guess.toUpperCase();
         const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
@@ -439,6 +445,9 @@ function soloPlay() {
         }
         const img = `<img src=${imageSrc} alt='user-image'></img>`;
         if (correctGuess) {
+            if($('#sound_off').hasClass('d-none')){
+                correct_audio.play();
+            }
             guess_count++;
             gameScore = gameScore + eachRound;
             rewards = gameScore + guess_count * 10;
@@ -470,6 +479,9 @@ function soloPlay() {
 
     // funtion to start drawing process
     function startDrawingProcess() {
+        if($('#sound_off').hasClass('d-none')){
+            start_audio.play();
+        }
         startTimer();
         reload = true;
         let jsonString = JSON.stringify(JSON.parse(drawingArray[currentRound].data))
@@ -486,7 +498,10 @@ function soloPlay() {
         }
         // Start the overall timer to ensure the total duration does not exceed 120 seconds
         setTimeout(() => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas;
+            if($('#sound_off').hasClass('d-none')){
+                end_audio.play();
+            }
             $('#scoreboard').modal({ backdrop: 'static', keyboard: false })
             $('#scoreboard').modal('show');
             console.log('Drawing process completed!');

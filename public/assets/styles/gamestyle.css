@@ -41,7 +41,7 @@ body {
 }
 
 .pop-in {
-    animation: popIn 0.35s ease forwards;
+    animation: popIn 0.30s ease forwards;
     /* Pop-out animation */
 }
 

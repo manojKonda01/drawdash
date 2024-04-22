@@ -81,10 +81,10 @@
 </head>
 
 <body>
-    <audio  src="media/audio/main_bgm.mp3" id="audioPlayer" loop="loop" autoplay="autoplay">
+    <!-- <audio  src="media/audio/main_bgm.mp3" id="audioPlayer" loop="loop" autoplay="autoplay"> -->
         <!-- <source src="media/audio/main_bgm.mp3" type="audio/mpeg">
         Your browser does not support the audio element. -->
-    </audio>
+    <!-- </audio> -->
     <div class="position-relative container-fluid p-0 center-container">
         <div class="position-absolute top-0 end-0 p-3">
             <figure>
@@ -102,14 +102,14 @@
                         <span style="color: black; font-size: x-small;" class="d-none" id="register_txt">REGISTER</span>
                         <div class="r-dot red-dot"></div>
                     </div>
-                    <div class="volume">
+                    <!-- <div class="volume">
                         <div id="sound_on">
                             <img src="media/images/volume.png" alt="sound">
                         </div>
                         <div id="sound_off" class="d-none">
                             <img src="media/images/mute.png" alt="mute">
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 <div id="home_game">
                     <div class="board-text d-grid p-3">
@@ -147,17 +147,17 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
-        const sound_on = document.getElementById('sound_on');
-        const sound_off = document.getElementById('sound_off');
+        // const sound_on = document.getElementById('sound_on');
+        // const sound_off = document.getElementById('sound_off');
         const lets_go = document.getElementById('lets_go');
         const banner = document.getElementById('game_banner');
         const register_txt = document.getElementById('register_txt');
         const loader = document.getElementById('loader');
-        const audio = document.getElementById('audioPlayer');
+        // const audio = document.getElementById('audioPlayer');
 
-        window.onload = function () {
-            audio.play();
-        }
+        // window.onload = function () {
+        //     audio.play();
+        // }
         function validateUsername(username) {
             // Regular expression to match valid usernames
             const usernameRegex = /^[a-zA-Z0-9_]{3,16}$/; // Allows letters (both uppercase and lowercase), numbers, and underscores. Length between 3 and 16 characters.
@@ -165,17 +165,17 @@
             // Test if the username matches the regular expression
             return usernameRegex.test(username);
         }
-        sound_on.addEventListener('click', function () {
-            sound_on.classList.add('d-none');
-            sound_off.classList.remove('d-none');
-            audio.pause();
-        });
+        // sound_on.addEventListener('click', function () {
+        //     sound_on.classList.add('d-none');
+        //     sound_off.classList.remove('d-none');
+        //     audio.pause();
+        // });
 
-        sound_off.addEventListener('click', function () {
-            sound_off.classList.add('d-none');
-            sound_on.classList.remove('d-none');
-            audio.play();
-        });
+        // sound_off.addEventListener('click', function () {
+        //     sound_off.classList.add('d-none');
+        //     sound_on.classList.remove('d-none');
+        //     audio.play();
+        // });
 
         lets_go.addEventListener('click', function () {
             if (localStorage.getItem('drawdash_user')) {
