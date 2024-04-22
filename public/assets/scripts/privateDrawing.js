@@ -65,7 +65,7 @@ function drawing(saveDrawingData) {
             startY: startY,
             endX: endX,
             endY: endY,
-            color: color, // Add color property as needed
+            color: isErasing ? '#FFFFFF' : color, // Add color property as needed
             lineWidth: lineWidth ? lineWidth : 2, // Add line width property as needed
         };
         if (saveDrawingData) {
