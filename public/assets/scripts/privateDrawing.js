@@ -14,11 +14,6 @@ function setCanvasSize() {
     canvas.height = cssHeight;
 }
 window.addEventListener('load', setCanvasSize);
-function clearCanvas() {
-    const canvas = document.getElementById('canva_board');
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
 function drawing(saveDrawingData) {
     const canvas = document.getElementById('canva_board');
     const ctx = canvas.getContext('2d');
@@ -104,7 +99,7 @@ function drawing(saveDrawingData) {
             startY: startY,
             endX: endX,
             endY: endY,
-            color: color, // Add color property as needed
+            color: isErasing ? '#FFFFFF' : color, // Add color property as needed
             lineWidth: lineWidth ? lineWidth : 2, // Add line width property as needed
         };
         if (saveDrawingData) {
@@ -391,7 +386,9 @@ function soloPlay() {
             if (jsonString) {
                 currentDrawingData = JSON.parse(jsonString);
                 // Draw the current drawing data
-                clearCanvas();
+                const canvas = document.getElementById('canva_board');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 drawLinesStepByStep(currentDrawingData);
             }
             else {
@@ -505,7 +502,7 @@ function soloPlay() {
         function drawNextLine() {
             if (index < drawingData.length) {
                 const line = drawingData[index];
-                const { startX, startY, endX, endY, lineWidth, color} = line;
+                const { startX, startY, endX, endY, lineWidth, color } = line;
                 const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
                 const isSmallScreen = viewportWidth <= 767; // Check if the viewport width is less than 767 pixels
                 // const isSmallScreen = false;
