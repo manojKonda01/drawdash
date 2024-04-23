@@ -596,11 +596,11 @@ canvas {
     cursor: pointer;
 }
 
-#scoreboard_body {
+#scoreboard_body, #private_body{
     font-family: "Manrope", sans-serif;
 }
 
-#scoreboard_body p {
+#scoreboard_body p, #private_body p{
     color: #7e7e7e;
 }
 

@@ -14,7 +14,7 @@ const io = socketIo(server);
 const bodyParser = require('body-parser');
 
 
-const {connectToMongoDB, insertDrawingData, getRandomDrawingData, getCountRandomDrawingData, registerUser, googleSignIn} = require('./DB')
+const { connectToMongoDB, insertDrawingData, getRandomDrawingData, getCountRandomDrawingData, registerUser, googleSignIn } = require('./DB')
 
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -41,38 +41,38 @@ app.get('/play', (req, res) => {
 });
 // api to register user
 app.post('/register', async (req, res) => {
-    try{
-        const {username, name, imageurl} = req.body;
+    try {
+        const { username, name, imageurl } = req.body;
         let new_image = imageurl;
-        if(!imageurl){
+        if (!imageurl) {
             new_image = 'media/images/avatars/panda.svg';
         }
         const result = await registerUser(username, name, imageurl);
-        if(result.success){
+        if (result.success) {
             res.status(200).json(result);
         }
-        else{
+        else {
             res.status(500).json(result);
         }
     }
-    catch(error){
-        res.status(500).json({message: 'Internal Server Error'});
+    catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 })
 // api to register user
 app.post('/googlesignin', async (req, res) => {
-    try{
-        const {username, name, imageurl} = req.body;
+    try {
+        const { username, name, imageurl } = req.body;
         const result = await googleSignIn(username, name, imageurl);
-        if(result.success){
+        if (result.success) {
             res.status(200).json(result);
         }
-        else{
+        else {
             res.status(500).json(result);
         }
     }
-    catch(error){
-        res.status(500).json({message: 'Internal Server Error'});
+    catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 })
 // api to get random word
@@ -81,51 +81,51 @@ app.get('/random_words', (req, res) => {
 })
 // api to add drawing data
 app.post('/add_drawing_data', async (req, res) => {
-    try{
-        const {word, data} = req.body;
-        const result = await insertDrawingData({word, data});
-        if(result.success){
-            res.status(200).json({message: 'Drawing Data Inserted'});
+    try {
+        const { word, data } = req.body;
+        const result = await insertDrawingData({ word, data });
+        if (result.success) {
+            res.status(200).json({ message: 'Drawing Data Inserted' });
         }
-        else{
-            res.status(500).json({message: 'Drawing Data Insertion failed'});
+        else {
+            res.status(500).json({ message: 'Drawing Data Insertion failed' });
         }
     }
-    catch(error){
-        res.status(500).json({message: 'Internal Server Error'});
+    catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
 // api to get random drawing data
 app.post('/getDrawingData', async (req, res) => {
-    try{
+    try {
         const result = await getRandomDrawingData();
-        if(result.success){
-            res.status(200).json({message: 'Success', data: result.data});
+        if (result.success) {
+            res.status(200).json({ message: 'Success', data: result.data });
         }
-        else{
-            res.status(500).json({message: 'Failed To Get Data'});
+        else {
+            res.status(500).json({ message: 'Failed To Get Data' });
         }
     }
-    catch(error){
-        res.status(500).json({message: 'Internal Server Error'});
+    catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 })
 
 // api to get n random drawing data
 app.post('/getnDrawingData', async (req, res) => {
-    try{
-        const {count} = req.body
+    try {
+        const { count } = req.body
         const result = await getCountRandomDrawingData(count);
-        if(result.success){
-            res.status(200).json({message: 'Success', data: result.data});
+        if (result.success) {
+            res.status(200).json({ message: 'Success', data: result.data });
         }
-        else{
-            res.status(500).json({message: 'Failed To Get Data'});
+        else {
+            res.status(500).json({ message: 'Failed To Get Data' });
         }
     }
-    catch(error){
-        res.status(500).json({message: 'Internal Server Error'});
+    catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 })
 
@@ -177,7 +177,7 @@ function getRandomWordFromFile(filePath, roomID) {
 
         // Generate a random index to select a word from the array
         const randomIndex = Math.floor(Math.random() * words.length);
-        
+
         // Store the word in the room object
         rooms[roomID].currentWord = words[randomIndex].toLowerCase();
         // Return the randomly selected word in lowercase
@@ -203,7 +203,7 @@ function getRandomWords(filePath, count) {
             // Add the randomly selected word to the array
             randomWords.push(words[randomIndex].toLowerCase());
         }
-        
+
         // Return the array of randomly selected words
         return randomWords;
     } catch (error) {
@@ -235,16 +235,15 @@ function selectDrawer(roomID) {
 function startNewRound(roomID) {
     // Select a drawer for the next round
     const drawer = selectDrawer(roomID);
-    // Generate a random word and store it in the room object
-    const word =  getRandomWordFromFile('word.txt', roomID);
-
-    // Notify players about the new round and word
-    io.to(roomID).emit('newRound', { word, drawerId: drawer.id, roundTime: ROUND_TIMEOUT/1000});
-    rooms[roomID].currentDrawer = drawer.id;
-    // Start next round after timeout
-    setTimeout(() => {
-        startNewRound(roomID);
-    }, ROUND_TIMEOUT); // Replace ROUND_TIMEOUT with the desired timeout value
+    if (drawer) {
+        // Notify players about the new round and word
+        io.to(roomID).emit('newRound', { drawerId: drawer.id, roundTime: ROUND_TIMEOUT / 1000 });
+        rooms[roomID].currentDrawer = drawer.id;
+        // Start next round after timeout
+        setTimeout(() => {
+            startNewRound(roomID);
+        }, ROUND_TIMEOUT); // Replace ROUND_TIMEOUT with the desired timeout value
+    }
 }
 
 let currentDrawerId; // Variable to store the ID of the current drawer
@@ -263,6 +262,9 @@ io.on('connection', (socket) => {
         // Notify all players in the room about the new player
         io.to(roomID).emit('playerJoined', rooms[roomID].players);
     });
+    socket.on('currentWord', (roomID, word) => {
+        rooms[roomID].currentWord = word;
+    })
 
     socket.on('joinRandomRoom', () => {
         const roomId = joinRandomRoom(socket.id);
@@ -270,12 +272,12 @@ io.on('connection', (socket) => {
         socket.emit('joinedRoom', roomId);
     });
 
-    socket.on('drawing', ({ startX, startY, endX, endY, roomID }) => {
+    socket.on('drawing', ({ startX, startY, endX, endY, color, lineWidth, isErasing, roomID }) => {
         if (rooms[roomID].currentDrawer === socket.id) {
-          // If the sender is the current drawer, broadcast the drawing event.
-          socket.to(roomID).emit('drawing', { startX, startY, endX, endY });
+            // If the sender is the current drawer, broadcast the drawing event.
+            socket.to(roomID).emit('drawing', { startX, startY, endX, endY, color, lineWidth, isErasing });
         }
-      });
+    });
 
     // Store guessed words for each player in each room
     const guessedWords = {};
@@ -286,7 +288,7 @@ io.on('connection', (socket) => {
         const isCorrect = guess.toLowerCase() === correctWord.toLowerCase();
         guessedWords[roomID] = guessedWords[roomID] || {};
         guessedWords[roomID][playerName] = guess;
-        
+
         io.to(roomID).emit('guessResult', { playerName, guess, isCorrect });
     });
 

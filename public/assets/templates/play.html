@@ -63,7 +63,7 @@
                         <p class="text-danger mt-4 d-none">Select A Word</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn custom-btn back-home">EXIT</button>
+                        <button type="button" class="btn custom-btn back-home d-none">EXIT</button>
                         <button type="button" class="btn custom-btn" id="word_start">DRAW</button>
                     </div>
                 </div>
@@ -112,6 +112,35 @@
                         <button type="button" class="btn custom-btn" id="start_again">PLAY AGAIN</button>
                         <button type="button" class="btn custom-btn back-home">HOME</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal text-center pop-out" tabindex="-1" id="private_rules" data-backdrop="static"
+            data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="private_head">CREATE OR JOIN ROOM</h5>
+                    </div>
+                    <div class="modal-body d-flex flex-column align-items-center justify-content-center"
+                        id="private_body">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Room ID" aria-label="Room ID"
+                                aria-describedby="basic-addon2" id="roomID" name="roomID">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary" type="button" onclick="joinRoom()">join
+                                    room</button>
+                            </div>
+                        </div>
+                        <p>OR</p>
+                        <div>
+                            <button class="btn custom-btn" id="create_room_btn">CREATE ROOM</button>
+                        </div>
+                    </div>
+                    <!-- <div class="modal-footer">
+                        <button type="button" class="btn custom-btn" id="private_start">LET'S GO</button>
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -231,7 +260,7 @@
                                 <input type="color" id="colorPicker">
                             </div>
                         </div>
-                        <input type="hidden" name="colorValue" id="colorValue" value="#ffffff">
+                        <input type="hidden" name="colorValue" id="colorValue" value="#000000">
                     </div>
                     <div class="d-flex align-items-center justify-content-between py-2 px-4 brushsize-container mb-3">
                         <input type="range" id="brushSize" min="1" max="50" value="2">
@@ -323,7 +352,7 @@
             sound_on.classList.add('d-none');
             sound_off.classList.remove('d-none');
         }
-        else if((localStorage.getItem('drawdash_mute') == 'play')) {
+        else if ((localStorage.getItem('drawdash_mute') == 'play')) {
             sound_off.classList.add('d-none');
             sound_on.classList.remove('d-none');
         }
@@ -371,7 +400,7 @@
             }
             else if (mode == 'private') {
                 $('#typebox').removeClass('d-none');
-                $('#rules_body p').text('Create Your Private Room to - Play with friends');
+                $('#rules_body p').text('Create Your Private Room to - Play with friends. Each player gets turn to draw while other guesses it.');
             }
             else if (mode == 'contribute') {
                 $('.undo-redo').addClass('d-none');
@@ -405,19 +434,17 @@
                 else if (mode == 'sketch') {
                     drawing(saveDrawingData = false);
                 }
-                else if(mode == 'private'){
-                    joinRoom();
+                else if (mode == 'private') {
+                    $('.game-container').addClass('d-none');
+                    $("#private_rules").modal('show');
                 }
-                else if (mode == 'contribute' || mode == 'public') {
+                else if (mode == 'contribute') {
+                    $('.back-home').removeClass('d-none');
                     generateRandomWords();
-                    if (mode == 'contribute') {
-                        drawing(saveDrawingData = true);
-                    }
+                    drawing(saveDrawingData = true);
                 }
                 $('#start_game').removeClass('d-none');
-                $('.back-home').removeClass('d-none');
             })
-
             $('#word_start').click(function () {
                 if ($('.random-word-btn').hasClass('selected')) {
                     $('#random_word_modal').modal('hide');
@@ -452,6 +479,8 @@
             $('.back-home').click(function () {
                 window.location.href = '/home';
             })
+            $('#paint svg path').css('fill', '#3498db');
+            $('#paint').css('border', '1px solid #3498db');
         })
     </script>
 </body>

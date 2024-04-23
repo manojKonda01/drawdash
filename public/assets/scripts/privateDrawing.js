@@ -26,9 +26,6 @@ function drawing(saveDrawingData) {
     let drawingData = []; // Array to store drawing data
     let historyIndex = -1;
 
-    $('#paint svg path').css('fill', '#3498db');
-    $('#paint').css('border', '1px solid #3498db');
-
     // to draw on mouse events
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.addEventListener('mousedown', startDrawing);
@@ -579,15 +576,18 @@ function soloPlay() {
     }
 }
 function joinRoom() {
+    let success = false;
+    success = true;
+    if(success){
+        $('#private_rules').modal('hide');
+        $('.game-container').removeClass('d-none');
+    }
     const socket = io();
     roomID = document.getElementById('roomID').value;
-    playerName = document.getElementById('playerName').value;
+    playerName = userSession.username;
 
     socket.emit('joinRoom', roomID, playerName);
     // Listen for the 'startRound' event from the server
-
-    document.getElementById('roomForm').style.display = 'none';
-    document.getElementById('gameArea').style.display = 'block';
 
     // Event listeners for drawing actions
     let isDrawing = false;
@@ -595,16 +595,25 @@ function joinRoom() {
     let lastY = 0;
     // let currentDrawerId;
 
+    let isErasing = false;
+
+    let history = [''];
+    let drawingData = []; // Array to store drawing data
+    let historyIndex = -1;
     // Receive the word from the server and display it in the canvas
-    socket.on('newRound', ({ word, drawerId, roundTime }) => {
+    socket.on('newRound', ({ drawerId, roundTime }) => {
 
         // Clear the canvas
-        const guess_word_element = document.getElementById('guess_word');
-        guess_word_element.innerHTML = '';
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (socket.id === drawerId) {
-            guess_word_element.innerHTML = 'Draw :' + word;
             // to draw on mouse events
+            generateRandomWords();
+
+            $('.brush-container').removeClass('d-none');
+            $('.brush-container').addClass('d-flex flex-column align-items-center justify-content-center');
+            $('#typebox').addClass('d-none');
+
+            socket.emit('currentWord', roomID, $('.random-word-btn.selected').attr('id'));
             canvas.addEventListener('mousedown', startDrawing);
             canvas.addEventListener('mousemove', draw);
             canvas.addEventListener('mouseup', stopDrawing);
@@ -617,6 +626,9 @@ function joinRoom() {
         }
         else {
             // Disable drawing for non-current drawers
+            $('.brush-container').addClass('d-none');
+            $('.brush-container').removeClass('d-flex flex-column align-items-center justify-content-center');
+            $('#typebox').removeClass('d-none');
             canvas.removeEventListener('mousedown', startDrawing);
             canvas.removeEventListener('mousemove', draw);
             canvas.removeEventListener('mouseup', stopDrawing);
@@ -626,7 +638,6 @@ function joinRoom() {
             canvas.removeEventListener('touchmove', handleTouchMove, false);
             canvas.removeEventListener('touchend', handleTouchEnd, false);
         }
-        startTimer(roundTime); // Start timer with 30 seconds
     });
 
     // BEGIN: functions to handle drawing using touch on mobile phones or touch screen devices 
@@ -644,10 +655,14 @@ function joinRoom() {
         const touch = e.touches[0];
         const startX = lastX;
         const startY = lastY;
-        const endX = touch.pageX - canvas.offsetLeft;
-        const endY = touch.pageY - canvas.offsetTop;
-        drawLine(startX, startY, endX, endY);
-        socket.emit('drawing', { startX, startY, endX, endY, roomID });
+        // const endX = touch.pageX - canvas.offsetLeft;
+        // const endY = touch.pageY - canvas.offsetTop;
+        const endX = touch.clientX - canvas.getBoundingClientRect().left;
+        const endY = touch.clientY - canvas.getBoundingClientRect().top;
+        const color = $('#colorValue').val();
+        const lineWidth = document.getElementById('brushSize').value;
+        drawLine(startX, startY, endX, endY, color, lineWidth, isErasing);
+        socket.emit('drawing', { startX, startY, endX, endY, color, lineWidth, isErasing, roomID });
         [lastX, lastY] = [endX, endY];
     }
 
@@ -668,19 +683,24 @@ function joinRoom() {
         const startY = lastY;
         const endX = e.offsetX;
         const endY = e.offsetY;
-        drawLine(startX, startY, endX, endY);
+        const color = $('#colorValue').val();
+        const lineWidth = document.getElementById('brushSize').value;
+        drawLine(startX, startY, endX, endY, color, lineWidth, isErasing);
+        socket.emit('drawing', { startX, startY, endX, endY, color, lineWidth, isErasing, roomID });
         [lastX, lastY] = [endX, endY];
     }
     // Function to draw a line on the canvas
-    function drawLine(startX, startY, endX, endY) {
+    function drawLine(startX, startY, endX, endY, color, lineWidth, isErasing) {
         const canvas = document.getElementById('canva_board');
         const ctx = canvas.getContext('2d');
+        ctx.strokeStyle = isErasing ? '#FFFFFF' : color;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
         // Start a new path
         ctx.beginPath();
 
         // Set the line style
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = lineWidth;
 
         // Move to the starting point
         ctx.moveTo(startX, startY);
@@ -695,12 +715,30 @@ function joinRoom() {
     // Function to stop drawing
     function stopDrawing(event) {
         if (isDrawing) {
-            if (!event.type.includes('mouseout')) {
+            ctx.closePath();
+            if (!event.type.includes('mouseout') || !event.type.includes('touchend')) {
                 saveDrawing();
             }
             isDrawing = false;
         }
     }
+
+    $('#eraser').click(function () {
+        isErasing = true;
+        $('#eraser svg path').css('fill', '#3498db');
+        $('#eraser').css('border', '1px solid #3498db');
+
+        $('#paint svg path').css('fill', '#d9d9d9');
+        $('#paint').css('border', '1px solid #d9d9d9');
+    })
+    $('#paint').click(() => {
+        isErasing = false;
+        $('#eraser svg path').css('fill', '#d9d9d9');
+        $('#eraser').css('border', '1px solid #d9d9d9');
+
+        $('#paint svg path').css('fill', '#3498db');
+        $('#paint').css('border', '1px solid #3498db');
+    })
 
     function saveDrawing() {
         if (historyIndex < history.length - 1) {
@@ -733,8 +771,8 @@ function joinRoom() {
         }
     }
     // Listen for 'drawing' event from other players
-    socket.on('drawing', ({ startX, startY, endX, endY }) => {
-        drawLine(startX, startY, endX, endY);
+    socket.on('drawing', ({ startX, startY, endX, endY, color, lineWidth, isErasing}) => {
+        drawLine(startX, startY, endX, endY, color, lineWidth, isErasing);
     });
 
     // Receive and display guess results from server
@@ -750,24 +788,6 @@ function joinRoom() {
             guessDisplay.appendChild(newGuessElement);
         }
     });
-}
-
-// Function to start the timer
-function startTimer(seconds) {
-    let timer = seconds;
-    const timerElement = document.getElementById('timer');
-
-    // Update the timer every second
-    const countdown = setInterval(() => {
-        timer--;
-        timerElement.textContent = timer;
-
-        // If the timer reaches 0, clear the interval
-        if (timer <= 0) {
-            clearInterval(countdown);
-            // Perform any actions when the timer expires (e.g., end of round)
-        }
-    }, 1000);
 }
 
 function submitGuess() {
