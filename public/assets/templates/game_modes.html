@@ -25,7 +25,7 @@
             <div class="d-grid">
                 <div class="board-top d-flex">
                     <div class="volume">
-                        <audio  src="media/audio/main_bgm.mp3" id="audioPlayer" loop="loop" autoplay="autoplay"></audio>
+                        <audio src="media/audio/main_bgm.mp3" id="audioPlayer" loop="loop"></audio>
                         <div id="sound_on">
                             <img src="media/images/sound_white.png" alt="sound" width="32" height="32">
                         </div>
@@ -86,31 +86,44 @@
         const setting = document.getElementById('settings');
         const audio = document.getElementById('audioPlayer');
 
-        window.onload = function () {
-            audio.play();
-        }
-        setting.addEventListener('click', function(){
+        // window.onload = function () {
+        //     audio.play();
+        // }
+        setting.addEventListener('click', function () {
             window.location.href = '/settings';
         })
         get_username.textContent = userSession.username;
-        if(userSession.imageurl){
+        if (userSession.imageurl) {
             user_image.src = userSession.imageurl;
         }
-        else{
+        else {
             user_image.src = 'media/images/avatars/panda.svg';
         }
 
         sound_on.addEventListener('click', function () {
+            localStorage.setItem('drawdash_mute', 'mute');
             sound_on.classList.add('d-none');
             sound_off.classList.remove('d-none');
             audio.pause();
         });
 
         sound_off.addEventListener('click', function () {
+            localStorage.setItem('drawdash_mute', 'play');
             sound_off.classList.add('d-none');
             sound_on.classList.remove('d-none');
             audio.play();
         });
+
+        if (localStorage.getItem('drawdash_mute') == 'mute') {
+            sound_on.classList.add('d-none');
+            sound_off.classList.remove('d-none');
+            audio.pause();
+        }
+        else if((localStorage.getItem('drawdash_mute') == 'play')) {
+            sound_off.classList.add('d-none');
+            sound_on.classList.remove('d-none');
+            audio.play();
+        }
 
         const modes = document.querySelectorAll('.mode-btn');
         modes.forEach(mode => {
