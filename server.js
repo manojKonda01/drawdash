@@ -307,11 +307,11 @@ io.on('connection', (socket) => {
 
 });
 
-// server.listen(3000, () => {
-//     console.log('Server started on port 3000');
-// });
-// Start the server
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+server.listen(port, () => {
+    console.log('Server started on port 3000');
 });
+// Start the server
+// app.listen(port, () => {
+//     console.log(`Server is running at http://localhost:${port}`);
+// });
 

@@ -280,8 +280,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
     <script src="assets/scripts/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
     <script src="assets/scripts/privateDrawing.js"></script>
     <script>
         const textInput = document.getElementById("type_guess");
@@ -371,7 +371,7 @@
             }
             else if (mode == 'private') {
                 $('#typebox').removeClass('d-none');
-                $('#rules_body p').text('Create Your Private Room');
+                $('#rules_body p').text('Create Your Private Room to - Play with friends');
             }
             else if (mode == 'contribute') {
                 $('.undo-redo').addClass('d-none');
@@ -405,13 +405,13 @@
                 else if (mode == 'sketch') {
                     drawing(saveDrawingData = false);
                 }
+                else if(mode == 'private'){
+                    joinRoom();
+                }
                 else if (mode == 'contribute' || mode == 'public') {
                     generateRandomWords();
                     if (mode == 'contribute') {
                         drawing(saveDrawingData = true);
-                    }
-                    else if (mode == 'private') {
-                        joinRoom();
                     }
                 }
                 $('#start_game').removeClass('d-none');
