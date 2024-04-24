@@ -251,10 +251,35 @@ function selectDrawer(roomID) {
     return players[drawerIndex];
 }
 
-let roundTimer;
+let roundTimer = {};
 let bonusScore = 0;
-let roundInterval;
+let roundInterval = {};
 
+function drawerSelectWord(roomID, word) {
+    if (activeRooms.hasOwnProperty(roomID)) {
+        activeRooms[roomID].currentWord = word;
+        if (activeRooms[roomID].players) {
+            const isDrawerId = activeRooms[roomID].players.filter(player => player.isDrawer).map(player => player.id);
+            io.to(roomID).emit('drawerChoseWord', roomID, isDrawerId[0], word.length);
+        }
+    }
+    else {
+        // Emit 'noSuchRoom' event to the client
+        io.to(roomID).emit('noSuchRoom');
+    }
+}
+let preRoundInterval = {};
+function preRoundFunction(roomID){
+    if (activeRooms.hasOwnProperty(roomID)) {
+        const word = activeRooms[roomID].currentWord;
+        io.to(roomID).emit('preRound', word);
+        preRoundInterval[roomID] = setTimeout(() => startNewRound(roomID), 2000);
+    }
+    else {
+        // Emit 'noSuchRoom' event to the client
+        io.to(roomID).emit('noSuchRoom');
+    }
+}
 // Function to start a new round in a room
 function startNewRound(roomID) {
     if (activeRooms.hasOwnProperty(roomID)) {
@@ -269,12 +294,12 @@ function startNewRound(roomID) {
             if (drawer) {
                 const drawerIndex = activeRooms[roomID].players.findIndex(player => player.id === drawer.id);
 
-                if(activeRooms[roomID].players){
+                if (activeRooms[roomID].players) {
                     for (let i = 0; i < activeRooms[roomID].players.length; i++) {
-                        if(i == drawerIndex){
+                        if (i == drawerIndex) {
                             activeRooms[roomID].players[i].isDrawer = true;
                         }
-                        else{
+                        else {
                             activeRooms[roomID].players[i].isDrawer = false;
                         }
                         activeRooms[roomID].players[i].isCorrect = false;
@@ -282,23 +307,30 @@ function startNewRound(roomID) {
                 }
                 const roundTime = room.roundTime;
                 bonusScore = parseInt(roundTime);
-                io.to(roomID).emit('newRound', drawer.id);
+                io.to(roomID).emit('newRound', drawer.id, drawer.name);
                 room.currentDrawer = drawer.id;
                 activeRooms[roomID].currentDrawer = drawer.id;
                 activeRooms[roomID].currentWord = '***';
                 room.currentRound = currentRound + 1; // Increment the current round count
                 // Start next round after timeout
-                roundInterval = setInterval(eachRoundTime, 1000);
-                roundTimer = setTimeout(() => {
-                    startNewRound(roomID);
-                    clearInterval(roundInterval);
+                function updateTimer(){
+                    bonusScore--;
+                    if (bonusScore < 0) {
+                        clearInterval(roundInterval[roomID]); // Stop the timer when it reaches 120 seconds
+                    }
+                    io.to(roomID).emit('roundTime', bonusScore);
+                }
+                roundInterval[roomID] = setInterval(updateTimer, 1000);
+                roundTimer[roomID] = setTimeout(() => {
+                    preRoundFunction(roomID);
+                    // startNewRound(roomID);
+                    clearInterval(roundInterval[roomID]);
                 }, roundTime * 1000); // Replace ROUND_TIMEOUT with the desired timeout value
             }
         } else {
             // If all rounds have been completed, end the game
             activeRooms[roomID].gameStarted = false;
-            clearInterval(roundInterval);
-            console.log(activeRooms[roomID].players);
+            clearInterval(roundInterval[roomID]);
             io.to(roomID).emit('endGame', roomID, activeRooms[roomID].players);
         }
     }
@@ -306,9 +338,6 @@ function startNewRound(roomID) {
         // Emit 'noSuchRoom' event to the client
         io.to(roomID).emit('noSuchRoom');
     }
-}
-function eachRoundTime() {
-    bonusScore--;
 }
 const maxPlayers = 8;
 const minPlayers = 2;
@@ -349,13 +378,7 @@ io.on('connection', (socket) => {
         clearInterval(countdownInterval);
     })
     socket.on('currentWord', (roomID, currentWord) => {
-        if (activeRooms.hasOwnProperty(roomID)) {
-            activeRooms[roomID].currentWord = currentWord;
-        }
-        else {
-            // Emit 'noSuchRoom' event to the client
-            socket.emit('noSuchRoom');
-        }
+        drawerSelectWord(roomID, currentWord);
     })
     socket.on('joinRandomRoom', () => {
         const roomId = joinRandomRoom(socket.id);
@@ -364,9 +387,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('drawing', ({ startX, startY, endX, endY, color, lineWidth, isErasing, roomID }) => {
-        if (activeRooms[roomID].currentDrawer === socket.id) {
-            // If the sender is the current drawer, broadcast the drawing event.
-            socket.to(roomID).emit('drawing', { startX, startY, endX, endY, color, lineWidth, isErasing });
+        if (activeRooms[roomID]) {
+            if (activeRooms[roomID].currentDrawer === socket.id) {
+                // If the sender is the current drawer, broadcast the drawing event.
+                socket.to(roomID).emit('drawing', { startX, startY, endX, endY, color, lineWidth, isErasing });
+            }
         }
     });
 
@@ -393,15 +418,16 @@ io.on('connection', (socket) => {
                         }
                     }
                 }
-                // clearTimeout(roundTimer);
-                clearInterval(roundInterval);
+                // clearTimeout(roundTimer[roomID]);
+                clearInterval(roundInterval[roomID]);
                 // startNewRound(roomID);
             }
             const allCorrectExceptDrawer = activeRooms[roomID].players.every(player => player.isDrawer || player.isCorrect);
-            if(allCorrectExceptDrawer){
-                clearTimeout(roundTimer);
-                clearInterval(roundInterval);
-                startNewRound(roomID);
+            if (allCorrectExceptDrawer) {
+                clearTimeout(roundTimer[roomID]);
+                clearInterval(roundInterval[roomID]);
+                // startNewRound(roomID);
+                preRoundFunction(roomID);
             }
 
         }
@@ -423,13 +449,13 @@ io.on('connection', (socket) => {
                 }
                 if (room.gameStarted && room.players.length < minPlayers) {
                     activeRooms[roomID].gameStarted = false;
+                    clearInterval(roundInterval[roomID]);
                     io.to(roomID).emit('endGame', roomID, room.players);
                 }
                 break;
             }
         }
     });
-
 });
 
 // Function to start the countdown timer for a room

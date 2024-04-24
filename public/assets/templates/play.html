@@ -257,8 +257,8 @@
                                 </div>
                             </div>
                             <div
-                                class="undo-redo position-absolute top-0 d-flex align-items-center justify-content-center mt-2">
-                                <button id="undo" class="btn btn-default btn-sm btn-icon me-3 p-1">
+                                class="undo-redo position-absolute top-0 d-flex align-items-center justify-content-center mt-2 hide-for-guesser">
+                                <button id="undo" class="btn btn-default btn-sm btn-icon p-1">
                                     <svg width="24px" height="24px" xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 24 24" fill="#8a8a8a" class="ui-svg-inline">
                                         <path class="main-fill"
@@ -279,7 +279,7 @@
                             <input type="hidden" name="word" id="hidden_word">
 
                             <button id="clear"
-                                class="btn btn-default btn-sm btn-icon position-absolute top-0 end-0 mt-2 me-2 p-1">
+                                class="btn btn-default btn-sm btn-icon position-absolute top-0 end-0 mt-2 me-2 p-1 hide-for-guesser">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#8a8a8a">
                                     <path fill="#8a8a8a"
                                         d="M15 3a1 1 0 0 1 1 1h2a1 1 0 1 1 0 2H6a1 1 0 0 1 0-2h2a1 1 0 0 1 1-1h6Z">
@@ -291,7 +291,7 @@
                             </button>
 
                             <button id="download"
-                                class="btn btn-default btn-sm btn-icon position-absolute bottom-0 end-0 mb-3 me-2 p-1">
+                                class="btn btn-default btn-sm btn-icon position-absolute bottom-0 end-0 mb-3 me-2 p-1 d-none">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                     <path fill="none" d="M0 0h24v24H0V0z"></path>
                                     <path fill="#8652ca" class="main-fill"
@@ -531,6 +531,7 @@
                 }
                 else if (mode == 'sketch') {
                     drawing(saveDrawingData = false);
+                    $('#download').removeClass('d-none');
                 }
                 else if (mode == 'private') {
                     $('.game-container').addClass('d-none');

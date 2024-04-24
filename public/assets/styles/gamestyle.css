@@ -243,7 +243,12 @@ canvas {
     left: 50%;
     transform: translateX(-50%);
 }
-
+#undo{
+    margin-right: 24px;
+}
+#redo{
+    margin-left: 24px;
+}
 .word-container {
     display: flex;
     align-items: center;
@@ -739,7 +744,6 @@ th {
     .back-home svg g {
         fill: black;
     }
-
     #undo,
     #redo {
         border: 1px solid white;
