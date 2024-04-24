@@ -223,7 +223,7 @@ function drawing(saveDrawingData) {
 
     }
     $('#add_drawing_btn').click(function () {
-        const word = $('.random-word-btn.selected').attr('id');
+        const word = $('.random-word-btn.selected').val();
         if (saveDrawingData) {
             saveDrawingDataforAdmin(word, JSON.stringify(drawingData));
             drawingData = [];
@@ -252,7 +252,8 @@ function generateRandomWords() {
                 const $button = $('<button>', {
                     text: capitalizeFirstLetter(word),
                     class: 'btn random-word-btn',
-                    id: word
+                    id: word,
+                    value: word
                 });
                 $('#word_body').append($button);
             });
@@ -357,13 +358,10 @@ function soloPlay() {
         // Start the timer for the current round
         roundTimer = setInterval(() => {
             elapsedTime += roundTime;
-            console.log('round time: ', elapsedTime, 'total Time : ', totalTime);
             if (elapsedTime > totalTime) {
                 // Stop the drawing process if the total time is exceeded
                 clearInterval(roundTimer);
                 clearInterval(roundInterval);
-                // clearInterval(countDownTimer);
-                console.log('Total time exceeded!');
             } else {
                 advanceToNextRound();
             }
@@ -399,7 +397,7 @@ function soloPlay() {
             clearInterval(roundInterval);
             // clearInterval(countDownTimer);
             if (currentRound == drawingArray.length) {
-                if($('#sound_off').hasClass('d-none')){
+                if ($('#sound_off').hasClass('d-none')) {
                     end_audio.play();
                 }
                 $('#scoreboard').modal({ backdrop: 'static', keyboard: false });
@@ -442,7 +440,7 @@ function soloPlay() {
         }
         const img = `<img src=${imageSrc} alt='user-image'></img>`;
         if (correctGuess) {
-            if($('#sound_off').hasClass('d-none')){
+            if ($('#sound_off').hasClass('d-none')) {
                 correct_audio.play();
             }
             guess_count++;
@@ -476,7 +474,7 @@ function soloPlay() {
 
     // funtion to start drawing process
     function startDrawingProcess() {
-        if($('#sound_off').hasClass('d-none')){
+        if ($('#sound_off').hasClass('d-none')) {
             start_audio.play();
         }
         startTimer();
@@ -496,7 +494,7 @@ function soloPlay() {
         // Start the overall timer to ensure the total duration does not exceed 120 seconds
         setTimeout(() => {
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas;
-            if($('#sound_off').hasClass('d-none')){
+            if ($('#sound_off').hasClass('d-none')) {
                 end_audio.play();
             }
             $('#scoreboard').modal({ backdrop: 'static', keyboard: false })
@@ -575,20 +573,10 @@ function soloPlay() {
         ctx.closePath();
     }
 }
-function joinRoom() {
-    let success = false;
-    success = true;
-    if(success){
-        $('#private_rules').modal('hide');
-        $('.game-container').removeClass('d-none');
-    }
+function joinCreatedRoom(roomID, isHost = false) {
     const socket = io();
-    roomID = document.getElementById('roomID').value;
     playerName = userSession.username;
-
-    socket.emit('joinRoom', roomID, playerName);
-    // Listen for the 'startRound' event from the server
-
+    playerImage = userSession.imageurl ? userSession.imageurl : 'media/images/avatars/panda.svg';
     // Event listeners for drawing actions
     let isDrawing = false;
     let lastX = 0;
@@ -600,20 +588,81 @@ function joinRoom() {
     let history = [''];
     let drawingData = []; // Array to store drawing data
     let historyIndex = -1;
-    // Receive the word from the server and display it in the canvas
-    socket.on('newRound', ({ drawerId, roundTime }) => {
 
+    const start_audio = document.getElementById('start_sound');
+    const end_audio = document.getElementById('end_sound');
+    socket.emit('joinRoom', roomID, playerName, playerImage, isHost);
+    $('#room_id').text(roomID);
+
+    // Event listener for when a player joins a room
+    socket.on('playerJoined', ({ roomID, roundTime, numberOfRounds, players }) => {
+        $('#room_id').val(roomID);
+        $('#round_time').text(roundTime);
+        $('#rounds').text(numberOfRounds);
+        // Update the UI to display the list of players in the room
+        updatePlayersList(players);
+    });
+    socket.on('countdownTime', (countdownTime) => {
+        updateCountdownTimer(countdownTime);
+    })
+    // Handle room expiration event
+    socket.on('roomExpired', function () {
+        // Room has expired, display a message to the user
+        alert('The room has expired.');
+        $('.pvt-modal-body').addClass('d-none');
+        $('#private_body').removeClass('d-none');
+        // Redirect the user or handle as needed
+    });
+
+    // Listen for 'noSuchRoom' event from the server
+    socket.on('noSuchRoom', () => {
+        $('.pvt-modal-body').addClass('d-none');
+        $('#private_body').removeClass('d-none');
+        alert('No such room exists. Please enter a valid room ID.');
+    });
+    socket.on('youCanStart', (id) => {
+        if (socket.id == id) {
+            $('#room_start_btn').removeClass('invisible')
+        }
+    });
+    socket.on('dontStart', () => {
+        $('#room_start_btn').addClass('invisible')
+    })
+    // Listen for 'noSuchRoom' event from the server
+    socket.on('roomFull', () => {
+        $('.pvt-modal-body').addClass('d-none');
+        $('#private_body').removeClass('d-none');
+        alert(`Room : ${roomID} if full`);
+    });
+    socket.on('playerLeft', (players) => {
+        updatePlayersList(players);
+    })
+    socket.on('endGame', (roomID, players) => {
+        if ($('#sound_off').hasClass('d-none')) {
+            end_audio.play();
+        }
+        $('#leaderboard').modal({ backdrop: 'static', keyboard: false });
+        $('#leaderboard').modal('show');
+        updateLeaderBoard(players);
+    })
+    $('#room_start_btn').click(function () {
+        socket.emit('startGame', roomID);
+        if ($('#sound_off').hasClass('d-none')) {
+            start_audio.play();
+        }
+    })
+    socket.on('newRound', (drawerId) => {
+        $("#private_rules").modal('hide');
+        $('.game-container').removeClass('d-none');
         // Clear the canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (socket.id === drawerId) {
             // to draw on mouse events
             generateRandomWords();
-
             $('.brush-container').removeClass('d-none');
             $('.brush-container').addClass('d-flex flex-column align-items-center justify-content-center');
             $('#typebox').addClass('d-none');
 
-            socket.emit('currentWord', roomID, $('.random-word-btn.selected').attr('id'));
             canvas.addEventListener('mousedown', startDrawing);
             canvas.addEventListener('mousemove', draw);
             canvas.addEventListener('mouseup', stopDrawing);
@@ -625,6 +674,10 @@ function joinRoom() {
             canvas.addEventListener('touchend', handleTouchEnd, false);
         }
         else {
+            $('#random_word_modal').modal('hide');
+            // $('#start_guessing').text('Player is Choosing a Word to Draw');
+            // $('.loader-wrapper').removeClass('d-none');
+
             // Disable drawing for non-current drawers
             $('.brush-container').addClass('d-none');
             $('.brush-container').removeClass('d-flex flex-column align-items-center justify-content-center');
@@ -639,14 +692,17 @@ function joinRoom() {
             canvas.removeEventListener('touchend', handleTouchEnd, false);
         }
     });
-
+    $('#word_start').click(function () {
+        const word = $('.random-word-btn.selected').val();
+        socket.emit('currentWord', roomID, word);
+    })
     // BEGIN: functions to handle drawing using touch on mobile phones or touch screen devices 
     function handleTouchStart(e) {
         e.preventDefault();
         const touch = e.touches[0];
-        lastX = touch.pageX - canvas.offsetLeft;
-        lastY = touch.pageY - canvas.offsetTop;
-        startDrawing();
+        lastX = touch.clientX - canvas.getBoundingClientRect().left;
+        lastY = touch.clientY - canvas.getBoundingClientRect().top;
+        startDrawing(e);
     }
 
     function handleTouchMove(e) {
@@ -771,12 +827,300 @@ function joinRoom() {
         }
     }
     // Listen for 'drawing' event from other players
-    socket.on('drawing', ({ startX, startY, endX, endY, color, lineWidth, isErasing}) => {
+    socket.on('drawing', ({ startX, startY, endX, endY, color, lineWidth, isErasing }) => {
+        drawLine(startX, startY, endX, endY, color, lineWidth, isErasing);
+    });
+    document.getElementById('guess_submit').addEventListener('submit', function (event) {
+        checkGuess(event);
+    })
+    $('#submit_guess_icon').click(function (event) {
+        checkGuess(event);
+    })
+    function checkGuess(k) {
+        event.preventDefault();
+        const inputValue = $('#type_guess').val()
+        socket.emit('checkGuess', socket.id, roomID, playerName, playerImage, inputValue);
+        $('#type_guess').val('');
+    }
+    socket.on('guessResult', (playerName, playerImage, sentGuess, bonusScore) => {
+        const correct_audio = document.getElementById('correct_sound');
+        var listItem = document.createElement('li');
+        const chatList = document.getElementById('chat_list');
+        listItem.classList.add('chat-item', 'py-1');
+        imageSrc = playerImage;
+        const img = `<img src=${imageSrc} alt='user-image'></img>`;
+        if (sentGuess === 'correct') {
+            if ($('#sound_off').hasClass('d-none')) {
+                correct_audio.play();
+            }
+            listItem.innerHTML = img + `<span class='guess-word-chat px-1'>Correct!<span>` + svg;
+            $('#start_guessing').text('Your Guess is Right!');
+        }
+        else {
+            listItem.innerHTML = img + `<span class='guess-word-chat px-1'>${sentGuess}<span>`;
+        }
+        chatList.appendChild(listItem);
+        chatList.scrollTop = chatList.scrollHeight;
+    })
+}
+function updateLeaderBoard(players) {
+    $('#leaderboard_count').text(players.length);
+    const playerData = document.getElementById('playerData');
+    playerData.innerHTML = '';
+    players.forEach(player => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+                <td class='d-flex align-items-center'>
+                    <img src="${player.imageurl}" width="24" height="24" class='rounded-circle'><p class='m-0 ms-2'>${player.name}</p>
+                </td>
+                <td><p class='m-0'>${player.gameScore}</p></td>
+                <td class='d-flex align-items-center'>
+                    <p class='m-0'>${player.gameScore + player.guessCount*10}</p>
+                    <img src="media/images/rewards.png" alt="rewards-img" width="24" height="24" class="ms-1">
+                </td>
+            `;
+        playerData.appendChild(row);
+    });
+}
+// Function to update the list of players in the room
+function updatePlayersList(players) {
+    $('#players_count').text(players.length);
+    const playersListElement = document.getElementById('playersList');
+    // Clear the existing list
+    playersListElement.innerHTML = '';
+    // Iterate through the players array and add each player to the list
+    players.forEach(player => {
+        const container = document.createElement('div');
+        container.classList.add('d-flex', 'align-items-center', 'mb-1');
+        const playerImage = document.createElement('img');
+        playerImage.src = player.imageurl ? player.imageurl : 'media/images/avatars/panda.svg';
+        playerImage.setAttribute("id", "user_image");
+        const playerElement = document.createElement('div');
+        playerElement.textContent = player.name;
+        playerElement.classList.add('mx-2');
+        playerElement.setAttribute("id", "get_username");
+        container.appendChild(playerImage);
+        container.appendChild(playerElement);
+        playersListElement.appendChild(container);
+    });
+}
+
+// Function to update the countdown timer on the UI
+function updateCountdownTimer(countdownTime) {
+    const countdownTimerElement = document.getElementById('countdownTimer');
+    // Calculate minutes and seconds from countdownTime
+    const minutes = Math.floor(countdownTime / 60000);
+    const seconds = Math.floor((countdownTime % 60000) / 1000);
+
+    // Format the minutes and seconds (add leading zeros if necessary)
+    const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    // Update the countdown timer element
+    countdownTimerElement.textContent = formattedTime;
+}
+
+function joinRoom() {
+    let success = false;
+    success = true;
+    if (success) {
+        $('#private_rules').modal('hide');
+        $('.game-container').removeClass('d-none');
+    }
+    const socket = io();
+    roomID = document.getElementById('roomID').value;
+    playerName = userSession.username;
+
+    socket.emit('joinRoom', roomID, playerName, playerImage, false);
+    // Listen for the 'startRound' event from the server
+
+    // Event listeners for drawing actions
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+    // let currentDrawerId;
+
+    let isErasing = false;
+
+    let history = [''];
+    let drawingData = []; // Array to store drawing data
+    let historyIndex = -1;
+    // Receive the word from the server and display it in the canvas
+    socket.on('newRound', (drawerId) => {
+
+        // Clear the canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (socket.id === drawerId) {
+            // to draw on mouse events
+            generateRandomWords();
+
+            $('.brush-container').removeClass('d-none');
+            $('.brush-container').addClass('d-flex flex-column align-items-center justify-content-center');
+            $('#typebox').addClass('d-none');
+
+            socket.emit('currentWord', roomID, $('.random-word-btn.selected').val());
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            // to draw on touch events
+            canvas.addEventListener('touchstart', handleTouchStart, false);
+            canvas.addEventListener('touchmove', handleTouchMove, false);
+            canvas.addEventListener('touchend', handleTouchEnd, false);
+        }
+        else {
+            // Disable drawing for non-current drawers
+            $('.brush-container').addClass('d-none');
+            $('.brush-container').removeClass('d-flex flex-column align-items-center justify-content-center');
+            $('#typebox').removeClass('d-none');
+            canvas.removeEventListener('mousedown', startDrawing);
+            canvas.removeEventListener('mousemove', draw);
+            canvas.removeEventListener('mouseup', stopDrawing);
+            canvas.removeEventListener('mouseout', stopDrawing);
+
+            canvas.removeEventListener('touchstart', handleTouchStart, false);
+            canvas.removeEventListener('touchmove', handleTouchMove, false);
+            canvas.removeEventListener('touchend', handleTouchEnd, false);
+        }
+    });
+
+    // BEGIN: functions to handle drawing using touch on mobile phones or touch screen devices 
+    function handleTouchStart(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        lastX = touch.clientX - canvas.getBoundingClientRect().left;
+        lastY = touch.clientY - canvas.getBoundingClientRect().top;
+        startDrawing(e);
+    }
+
+    function handleTouchMove(e) {
+        e.preventDefault();
+        if (!isDrawing) return;
+        const touch = e.touches[0];
+        const startX = lastX;
+        const startY = lastY;
+        // const endX = touch.pageX - canvas.offsetLeft;
+        // const endY = touch.pageY - canvas.offsetTop;
+        const endX = touch.clientX - canvas.getBoundingClientRect().left;
+        const endY = touch.clientY - canvas.getBoundingClientRect().top;
+        const color = $('#colorValue').val();
+        const lineWidth = document.getElementById('brushSize').value;
+        drawLine(startX, startY, endX, endY, color, lineWidth, isErasing);
+        socket.emit('drawing', { startX, startY, endX, endY, color, lineWidth, isErasing, roomID });
+        [lastX, lastY] = [endX, endY];
+    }
+
+    // END: functions to handle drawing using touch on mobile phones or touch screen devices 
+    function handleTouchEnd(e) {
+        e.preventDefault();
+        stopDrawing();
+    }
+    // Function to start drawing
+    function startDrawing(e) {
+        isDrawing = true;
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+    }
+    // Function to draw
+    function draw(e) {
+        if (!isDrawing) return; // stop the function if the player should not draw
+        const startX = lastX;
+        const startY = lastY;
+        const endX = e.offsetX;
+        const endY = e.offsetY;
+        const color = $('#colorValue').val();
+        const lineWidth = document.getElementById('brushSize').value;
+        drawLine(startX, startY, endX, endY, color, lineWidth, isErasing);
+        socket.emit('drawing', { startX, startY, endX, endY, color, lineWidth, isErasing, roomID });
+        [lastX, lastY] = [endX, endY];
+    }
+    // Function to draw a line on the canvas
+    function drawLine(startX, startY, endX, endY, color, lineWidth, isErasing) {
+        const canvas = document.getElementById('canva_board');
+        const ctx = canvas.getContext('2d');
+        ctx.strokeStyle = isErasing ? '#FFFFFF' : color;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        // Start a new path
+        ctx.beginPath();
+
+        // Set the line style
+        ctx.lineWidth = lineWidth;
+
+        // Move to the starting point
+        ctx.moveTo(startX, startY);
+
+        // Draw a line to the ending point
+        ctx.lineTo(endX, endY);
+
+        // Stroke the line
+        ctx.stroke();
+    }
+
+    // Function to stop drawing
+    function stopDrawing(event) {
+        if (isDrawing) {
+            ctx.closePath();
+            if (!event.type.includes('mouseout') || !event.type.includes('touchend')) {
+                saveDrawing();
+            }
+            isDrawing = false;
+        }
+    }
+
+    $('#eraser').click(function () {
+        isErasing = true;
+        $('#eraser svg path').css('fill', '#3498db');
+        $('#eraser').css('border', '1px solid #3498db');
+
+        $('#paint svg path').css('fill', '#d9d9d9');
+        $('#paint').css('border', '1px solid #d9d9d9');
+    })
+    $('#paint').click(() => {
+        isErasing = false;
+        $('#eraser svg path').css('fill', '#d9d9d9');
+        $('#eraser').css('border', '1px solid #d9d9d9');
+
+        $('#paint svg path').css('fill', '#3498db');
+        $('#paint').css('border', '1px solid #3498db');
+    })
+
+    function saveDrawing() {
+        if (historyIndex < history.length - 1) {
+            history = history.slice(0, historyIndex + 1);
+        }
+        history.push(canvas.toDataURL());
+        historyIndex++;
+    }
+
+    function undo() {
+        if (historyIndex > 0) {
+            historyIndex--;
+            const img = new Image();
+            img.onload = function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = history[historyIndex];
+        }
+    }
+    function redo() {
+        if (historyIndex < history.length - 1) {
+            historyIndex++;
+            const img = new Image();
+            img.onload = function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = history[historyIndex];
+        }
+    }
+    // Listen for 'drawing' event from other players
+    socket.on('drawing', ({ startX, startY, endX, endY, color, lineWidth, isErasing }) => {
         drawLine(startX, startY, endX, endY, color, lineWidth, isErasing);
     });
 
     // Receive and display guess results from server
-    socket.on('guessResult', ({ playerName, guess, isCorrect }) => {
+    socket.on('guessResult', ({ playerName, playerImage, guess }) => {
         if (isCorrect) {
             // If the guess is correct, display a message to all players
             alert(`${playerName}'s guess "${guess}" is correct!`);
@@ -790,12 +1134,6 @@ function joinRoom() {
     });
 }
 
-function submitGuess() {
-    const guess = document.getElementById('guessInput').value;
-    playerName = document.getElementById('playerName').value;
-    socket.emit('guess', roomID, playerName, guess);
-}
-
 // Add an event listener for the beforeunload event
 window.addEventListener('beforeunload', function (event) {
     if (reload) {
@@ -804,7 +1142,7 @@ window.addEventListener('beforeunload', function (event) {
         // Show a custom confirmation message
         event.returnValue = '';
         // You can customize the message to fit your needs
-        const confirmationMessage = 'Are you sure you want to reload?';
+        const confirmationMessage = 'Are you sure you want to exit?';
         // Returning the custom message will prompt the user with a confirmation dialog
         return confirmationMessage;
     }

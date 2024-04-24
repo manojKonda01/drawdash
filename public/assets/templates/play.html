@@ -109,6 +109,43 @@
                         <p class="text-danger mt-4 d-none"></p>
                     </div>
                     <div class="modal-footer">
+                        <button type="button" class="btn custom-btn" id="pvt_start_again">PLAY AGAIN</button>
+                        <button type="button" class="btn custom-btn back-home">HOME</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal text-center pop-out" tabindex="-1" id="leaderboard" data-backdrop="static"
+            data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="leaderboard_title">LEADER BOARD</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div id="leaderboard_body">
+                            <img src="media/images/stats.png" alt="stats-img" width="48" height="48" class="m-2">
+                            <h4 class="mb-3">Game Stats</h4>
+                            <div class="d-flex ms-auto">
+                                <img src="media/images/multiple-users.png" alt="users-icon" width="24" height="24">
+                                <p class="m-0 ms-1" id="leaderboard_count">0</p>
+                            </div>
+                            <table id="playerTable">
+                                <thead>
+                                    <tr>
+                                        <th>Player</th>
+                                        <th>Score</th>
+                                        <th>Rewards</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="playerData">
+                                    <!-- Player data will be inserted here dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
                         <button type="button" class="btn custom-btn" id="start_again">PLAY AGAIN</button>
                         <button type="button" class="btn custom-btn back-home">HOME</button>
                     </div>
@@ -123,19 +160,75 @@
                     <div class="modal-header">
                         <h5 class="modal-title" id="private_head">CREATE OR JOIN ROOM</h5>
                     </div>
-                    <div class="modal-body d-flex flex-column align-items-center justify-content-center"
-                        id="private_body">
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="Room ID" aria-label="Room ID"
-                                aria-describedby="basic-addon2" id="roomID" name="roomID">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="button" onclick="joinRoom()">join
-                                    room</button>
+                    <div class="modal-body">
+                        <div class="d-flex flex-column align-items-center justify-content-center pvt-modal-body"
+                            id="private_body">
+                            <div class="mb-3 input-group">
+                                <input type="text" class="form-control" placeholder="Room ID" id="roomID" name="roomID">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-primary" type="button" id="join_room">join
+                                        room</button>
+                                </div>
+                            </div>
+                            <p>OR</p>
+                            <div>
+                                <button class="btn custom-btn" id="create_room_btn">CREATE ROOM</button>
                             </div>
                         </div>
-                        <p>OR</p>
-                        <div>
-                            <button class="btn custom-btn" id="create_room_btn">CREATE ROOM</button>
+                        <div class="d-flex flex-column align-items-center justify-content-center d-none pvt-modal-body"
+                            id="create_room_body">
+                            <div class="d-flex align-items-center justify-content-center my-3">
+                                <p class="m-0">rounds</p>
+                                <button class="btn btn-light rounded-circle invisible" id="reduce_rounds">-</button>
+                                <div class="round-number display-6 rounded-circle p-3 d-flex align-items-center justify-content-center mx-2"
+                                    id="no_of_rounds" value="3">
+                                    3
+                                </div>
+                                <button class="btn btn-light rounded-circle" id="add_rounds">+</button>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center my-3">
+                                <p class="m-0">round time</p>
+                                <button class="btn btn-light rounded-circle round-time mx-1 round-number"
+                                    value="15">15s</button>
+                                <button class="btn btn-light rounded-circle round-time mx-1" value="30">30s</button>
+                                <button class="btn btn-light rounded-circle round-time mx-1" value="45">45s</button>
+                                <button class="btn btn-light rounded-circle round-time mx-1" value="60">60s</button>
+                                <button class="btn btn-light rounded-circle round-time mx-1" value="90">90s</button>
+                                <input type="hidden" name="roundTime" id="roundTime" value="15">
+                            </div>
+                            <button class="btn custom-btn my-3" id="create_room">CREATE</button>
+                        </div>
+                        <div class="d-flex flex-column align-items-center justify-content-center d-none pvt-modal-body"
+                            id="players_box">
+                            <div class="d-flex flex-column">
+                                <p class="m-0">room expires in</p>
+                                <button id="countdownTimer" class="btn btn-light disable-hover">15:00</button>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between my-3">
+                                <div class="d-flex flex-column align-items-center justify-content-center my-2 mx-3">
+                                    <p class="m-0 game-table">room id</p>
+                                    <button id="room_id" class="btn disable-hover">xxxxxxx</button>
+                                </div>
+                                <div class="d-flex flex-column align-items-center justify-content-center my-2 mx-3">
+                                    <p class="m-0 game-table">rounds</p>
+                                    <button id="rounds" class="btn disable-hover">3</button>
+                                </div>
+                                <div class="d-flex flex-column align-items-center justify-content-center my-2 mx-3">
+                                    <p class="m-0 game-table">round timer</p>
+                                    <button id="round_time" class="btn disable-hover">15</button>
+                                </div>
+                            </div>
+                            <div class="d-flex ms-auto">
+                                <img src="media/images/multiple-users.png" alt="users-icon" width="24" height="24">
+                                <p class="m-0 ms-1" id="players_count">0</p>
+                            </div>
+                            <p class="d-flex me-auto game-table">players</p>
+                            <div id="playersList" class="me-auto">
+
+                            </div>
+                            <div class="invisible" id="room_start_btn">
+                                <button class="btn custom-btn">START</button>
+                            </div>
                         </div>
                     </div>
                     <!-- <div class="modal-footer">
@@ -145,7 +238,7 @@
             </div>
         </div>
 
-        <div class="loader-wrapper d-none">
+        <div class="loader-wrapper d-none" id="displayLoader">
             <div class="loader"></div>
             <span id="start_guessing"></span>
         </div>
@@ -318,6 +411,9 @@
         const sound_on = document.getElementById('sound_on');
         const sound_off = document.getElementById('sound_off');
         const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
+        const minRounds = 3;
+        const maxRounds = 10;
+        let currentRound = 3;
         window.onload = function () {
             textInput.focus();
         };
@@ -358,6 +454,7 @@
         }
 
         $(document).ready(function () {
+            $('.pvt-modal-body').addClass('d-none');
             const constantModes = ['solo', 'private', 'contribute', 'sketch']
             $('#gamerules').modal({ backdrop: 'static', keyboard: false })
             $('#gamerules').modal('show');
@@ -401,6 +498,7 @@
             else if (mode == 'private') {
                 $('#typebox').removeClass('d-none');
                 $('#rules_body p').text('Create Your Private Room to - Play with friends. Each player gets turn to draw while other guesses it.');
+                $('.volume').removeClass('d-none')
             }
             else if (mode == 'contribute') {
                 $('.undo-redo').addClass('d-none');
@@ -436,6 +534,8 @@
                 }
                 else if (mode == 'private') {
                     $('.game-container').addClass('d-none');
+                    $('#private_body').removeClass('d-none');
+                    $('#private_rules').modal({ backdrop: 'static', keyboard: false })
                     $("#private_rules").modal('show');
                 }
                 else if (mode == 'contribute') {
@@ -476,11 +576,84 @@
             $('#start_again').click(function () {
                 window.location.reload();
             });
+            $('#pvt_start_again').click(function () {
+                window.location.reload();
+            });
             $('.back-home').click(function () {
                 window.location.href = '/home';
             })
             $('#paint svg path').css('fill', '#3498db');
             $('#paint').css('border', '1px solid #3498db');
+
+            $('#create_room_btn').click(() => {
+                $('.pvt-modal-body').addClass('d-none');
+                $('#create_room_body').removeClass('d-none');
+            })
+            $('.round-time').click(function () {
+                $('.round-time').removeClass('round-number');
+                $(this).addClass('round-number');
+                $('#roundTime').val($(this).val());
+            })
+            $('#no_of_rounds').val(3);
+            $('#add_rounds').click(function () {
+                currentRound++;
+                if (currentRound > minRounds) {
+                    $('#reduce_rounds').removeClass('invisible');
+                }
+                else {
+                    $('#reduce_rounds').addClass('invisible');
+                }
+                if (currentRound <= maxRounds) {
+                    if (currentRound >= maxRounds) {
+                        $('#add_rounds').addClass('invisible');
+                    }
+                    else {
+                        $('#add_rounds').removeClass('invisible');
+                    }
+                    $('#no_of_rounds').text(currentRound);
+                    $('#no_of_rounds').val(currentRound);
+                }
+            });
+            $('#reduce_rounds').click(function () {
+                if (currentRound > minRounds) {
+                    currentRound--;
+                    $('#no_of_rounds').text(currentRound);
+                    $('#no_of_rounds').val(currentRound);
+                    $('#reduce_rounds').removeClass('invisible');
+                    if (currentRound <= minRounds) {
+                        $('#reduce_rounds').addClass('invisible');
+                    }
+                }
+                if (currentRound >= maxRounds) {
+                    $('#add_rounds').addClass('invisible');
+                }
+                else {
+                    $('#add_rounds').removeClass('invisible');
+                }
+            });
+
+            $('#create_room').click(function () {
+                $('.pvt-modal-body').addClass('d-none');
+                $('#players_box').removeClass('d-none');
+                const roundTime = $('#roundTime').val();
+                const numberOfRounds = $('#no_of_rounds').val();
+                const requestData = { roundTime, numberOfRounds };
+                // Send request to server to create a room with additional details
+                $.post('/createRoom', requestData, function (data) {
+                    const roomID = data.roomID;
+                    joinCreatedRoom(roomID, isHost = true);
+                });
+                $('#round_time').text($('#roundTime').val());
+                $('#rounds').text($('#no_of_rounds').val());
+            });
+
+            $('#join_room').click(function () {
+                $('#room_start_btn').addClass('invisible')
+                $('.pvt-modal-body').addClass('d-none');
+                $('#players_box').removeClass('d-none');
+                const roomID = $('#roomID').val();
+                joinCreatedRoom(roomID, isHost = false);
+            })
         })
     </script>
 </body>

@@ -596,11 +596,11 @@ canvas {
     cursor: pointer;
 }
 
-#scoreboard_body, #private_body{
+#scoreboard_body, #private_body, #create_room_body, #players_box{
     font-family: "Manrope", sans-serif;
 }
 
-#scoreboard_body p, #private_body p{
+#scoreboard_body p, #private_body p, #create_room_body p, #players_box p{
     color: #7e7e7e;
 }
 
@@ -636,7 +636,51 @@ canvas {
         transform: rotate(360deg);
     }
 }
-
+.round-number{
+    width: 50px;
+    height: 50px;
+}
+#room_id, .round-number{
+    color: #0091ff !important;
+    border: 2px solid #0091ff;
+}
+#round_time, #rounds{
+    color: #0091ff !important;   
+}
+.round-time{
+    width: 50px;
+    height: 50px;
+    color: #7e7e7e;
+}
+#reduce_rounds, #add_rounds{
+    width: 50px;
+    height: 50px;
+}
+#countdownTimer{
+    font-size: x-large;
+    font-weight: bold;
+    color: #7e7e7e;
+}
+#playersList{
+    min-height: 240px;
+}
+.game-table{
+    font-weight: bold;
+}
+.disable-hover{
+    pointer-events: none;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+th, td {
+    padding: 8px;
+    text-align: left;
+}
+th {
+    background-color: #f2f2f2;
+}
 @media (max-width: 767px) {
     body {
         background-image: url('/media/images/floor.png'), url('/media/images/pd_background.svg');
