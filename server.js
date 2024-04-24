@@ -380,6 +380,10 @@ io.on('connection', (socket) => {
     socket.on('currentWord', (roomID, currentWord) => {
         drawerSelectWord(roomID, currentWord);
     })
+    socket.on('clear', (roomID) => {
+        // Broadcast clear event to all clients in the room except the drawer
+        socket.to(roomID).emit('clear');
+    });
     socket.on('joinRandomRoom', () => {
         const roomId = joinRandomRoom(socket.id);
         socket.join(roomId);

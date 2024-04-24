@@ -638,12 +638,19 @@ function joinCreatedRoom(roomID, isHost = false) {
     socket.on('playerLeft', (players) => {
         updatePlayersList(players);
     })
-    socket.on('preRound', (word)=>{
-        console.log(word);
+    socket.on('preRound', (word) => {
+        canvas.removeEventListener('mousedown', startDrawing);
+        canvas.removeEventListener('mousemove', draw);
+        canvas.removeEventListener('mouseup', stopDrawing);
+        canvas.removeEventListener('mouseout', stopDrawing);
+
+        canvas.removeEventListener('touchstart', handleTouchStart, false);
+        canvas.removeEventListener('touchmove', handleTouchMove, false);
+        canvas.removeEventListener('touchend', handleTouchEnd, false);
         ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas;
         const wordContainer = document.getElementById('wordContainer');
-        wordContainer.innerHTML = ''; 
-        wordContainer.textContent = 'Answer is: '+word;
+        wordContainer.innerHTML = '';
+        wordContainer.textContent = 'Answer is: ' + word;
     })
     socket.on('endGame', (roomID, players) => {
         $('.loader-wrapper').addClass('d-none');
@@ -668,6 +675,7 @@ function joinCreatedRoom(roomID, isHost = false) {
         $("#private_rules").modal('hide');
         $('.game-container').removeClass('d-none');
         $('.loader-wrapper').addClass('d-none');
+        $('.hide-for-both').addClass('d-none');
         // Clear the canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (socket.id === drawerId) {
@@ -710,7 +718,7 @@ function joinCreatedRoom(roomID, isHost = false) {
     });
     $('#word_start').click(function () {
         const word = $('.random-word-btn.selected').val();
-        if(word){
+        if (word) {
             socket.emit('currentWord', roomID, word);
         }
     })
@@ -721,16 +729,16 @@ function joinCreatedRoom(roomID, isHost = false) {
         }
         return stars;
     }
-    socket.on('drawerChoseWord', (roomID, drawerId, wordLength)=>{
+    socket.on('drawerChoseWord', (roomID, drawerId, wordLength) => {
         $('.loader-wrapper').addClass('d-none');
         if (socket.id === drawerId) {
             // $('.loader-wrapper').addClass('d-none');
         }
-        else{
+        else {
             displayWord(createStars(wordLength));
         }
     })
-    socket.on('roundTime', (timer)=>{
+    socket.on('roundTime', (timer) => {
         updateRoundTimer(timer);
     })
     // BEGIN: functions to handle drawing using touch on mobile phones or touch screen devices 
@@ -851,7 +859,13 @@ function joinCreatedRoom(roomID, isHost = false) {
             };
             img.src = history[historyIndex];
         }
+        else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
     }
+    $('#undo').click(function () {
+        undo();
+    })
     function redo() {
         if (historyIndex < history.length - 1) {
             historyIndex++;
@@ -863,6 +877,22 @@ function joinCreatedRoom(roomID, isHost = false) {
             img.src = history[historyIndex];
         }
     }
+    $('#redo').click(function () {
+        redo();
+    })
+    $('#clear').click(function () {
+        const canvas = document.getElementById('canva_board');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawingData = [];
+        socket.emit('clear', roomID);
+    });
+    socket.on('clear', () => {
+        const canvas = document.getElementById('canva_board');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawingData = [];
+    })
     // Listen for 'drawing' event from other players
     socket.on('drawing', ({ startX, startY, endX, endY, color, lineWidth, isErasing }) => {
         drawLine(startX, startY, endX, endY, color, lineWidth, isErasing);
@@ -915,7 +945,7 @@ function joinCreatedRoom(roomID, isHost = false) {
         }
     }
 }
-function updateRoundTimer(timer){
+function updateRoundTimer(timer) {
     const timerDisplay = document.getElementById('timer');
     timerDisplay.classList.add('countdown');
     document.getElementById('timer').textContent = timer; // Update the timer display
@@ -933,7 +963,7 @@ function updateLeaderBoard(players) {
                 </td>
                 <td><p class='m-0'>${player.gameScore}</p></td>
                 <td class='d-flex align-items-center'>
-                    <p class='m-0'>${player.gameScore + player.guessCount*10}</p>
+                    <p class='m-0'>${player.gameScore + player.guessCount * 10}</p>
                     <img src="media/images/rewards.png" alt="rewards-img" width="24" height="24" class="ms-1">
                 </td>
             `;
