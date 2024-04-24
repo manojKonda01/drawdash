@@ -41,7 +41,7 @@ body {
 }
 
 .pop-in {
-    animation: popIn 0.35s ease forwards;
+    animation: popIn 0.30s ease forwards;
     /* Pop-out animation */
 }
 
@@ -176,13 +176,42 @@ body {
 .brush-container {
     margin-left: 2rem;
     margin-right: 2rem;
+    animation: popOut 0.35s ease forwards;
 }
 
 .brush-container {
-    background: white;
-    border-radius: 2rem;
+    background-color: #f0f0f0;
+    /* background: white; */
+    border-radius: 4px;
     box-shadow: 0 1px 14px 0 rgba(0, 0, 0, 0.25);
     width: 60vw;
+}
+
+.color-btn {
+    border: none;
+    outline: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+}
+
+.current-color {
+    border: 2px solid #40a9ff;
+}
+
+.color-container, .any-color-container{
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.brushsize-container {
+    background: white;
+    width: 85%;
+    border-radius: 1rem;
 }
 
 #brushSize {
@@ -252,7 +281,7 @@ canvas {
 #undo:hover,
 #redo:hover {
     border: 1px solid white;
-    background: #3498db;
+    background: #8652ca;
 }
 
 #download:hover svg .main-fill,
@@ -274,7 +303,35 @@ canvas {
 #clear:hover svg path {
     fill: #F70F18;
 }
+.color-picker-container {
+    position: relative;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+}
+.color-picker-container input[type="color"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    opacity: 0;
+    cursor: pointer;
+    content: '';
+    border-radius: 50%;
 
+}
+.color-picker-container:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+    border-radius: 50%;
+    z-index: -9999;
+}
 
 .type-guess {
     height: 3rem;
@@ -539,11 +596,11 @@ canvas {
     cursor: pointer;
 }
 
-#scoreboard_body {
+#scoreboard_body, #private_body, #create_room_body, #players_box{
     font-family: "Manrope", sans-serif;
 }
 
-#scoreboard_body p {
+#scoreboard_body p, #private_body p, #create_room_body p, #players_box p{
     color: #7e7e7e;
 }
 
@@ -579,7 +636,51 @@ canvas {
         transform: rotate(360deg);
     }
 }
-
+.round-number{
+    width: 50px;
+    height: 50px;
+}
+#room_id, .round-number{
+    color: #0091ff !important;
+    border: 2px solid #0091ff;
+}
+#round_time, #rounds{
+    color: #0091ff !important;   
+}
+.round-time{
+    width: 50px;
+    height: 50px;
+    color: #7e7e7e;
+}
+#reduce_rounds, #add_rounds{
+    width: 50px;
+    height: 50px;
+}
+#countdownTimer{
+    font-size: x-large;
+    font-weight: bold;
+    color: #7e7e7e;
+}
+#playersList{
+    min-height: 240px;
+}
+.game-table{
+    font-weight: bold;
+}
+.disable-hover{
+    pointer-events: none;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+th, td {
+    padding: 8px;
+    text-align: left;
+}
+th {
+    background-color: #f2f2f2;
+}
 @media (max-width: 767px) {
     body {
         background-image: url('/media/images/floor.png'), url('/media/images/pd_background.svg');
@@ -642,8 +743,9 @@ canvas {
     #undo,
     #redo {
         border: 1px solid white;
-        background: #3498db;
+        background: #8652ca;
     }
+
     #undo svg path,
     #redo svg path {
         fill: white;

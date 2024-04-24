@@ -17,6 +17,21 @@
 </head>
 
 <body>
+    <div class="position-absolute top-0 end-0 m-3 back-home d-none">
+        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="36" height="36" viewBox="0,0,256,256"
+            style="fill:#000000;">
+            <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt"
+                stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0"
+                font-family="none" font-weight="none" font-size="none" text-anchor="none"
+                style="mix-blend-mode: normal">
+                <g transform="scale(10.66667,10.66667)">
+                    <path
+                        d="M12,2c-0.26712,0.00003 -0.52312,0.10694 -0.71094,0.29688l-10.08594,8.80078c-0.12774,0.09426 -0.20313,0.24359 -0.20312,0.40234c0,0.27614 0.22386,0.5 0.5,0.5h2.5v8c0,0.552 0.448,1 1,1h4c0.552,0 1,-0.448 1,-1v-6h4v6c0,0.552 0.448,1 1,1h4c0.552,0 1,-0.448 1,-1v-8h2.5c0.27614,0 0.5,-0.22386 0.5,-0.5c0.00001,-0.15876 -0.07538,-0.30808 -0.20312,-0.40234l-10.08008,-8.79492c-0.00194,-0.00196 -0.0039,-0.00391 -0.00586,-0.00586c-0.18782,-0.18994 -0.44382,-0.29684 -0.71094,-0.29687z">
+                    </path>
+                </g>
+            </g>
+        </svg>
+    </div>
     <div class="position-relative p-0 main-container">
         <!-- Modal -->
         <div class="modal text-center pop-out" tabindex="-1" id="gamerules" data-backdrop="static"
@@ -48,7 +63,7 @@
                         <p class="text-danger mt-4 d-none">Select A Word</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn custom-btn back-home">EXIT</button>
+                        <button type="button" class="btn custom-btn back-home d-none">EXIT</button>
                         <button type="button" class="btn custom-btn" id="word_start">DRAW</button>
                     </div>
                 </div>
@@ -94,6 +109,43 @@
                         <p class="text-danger mt-4 d-none"></p>
                     </div>
                     <div class="modal-footer">
+                        <button type="button" class="btn custom-btn" id="pvt_start_again">PLAY AGAIN</button>
+                        <button type="button" class="btn custom-btn back-home">HOME</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal text-center pop-out" tabindex="-1" id="leaderboard" data-backdrop="static"
+            data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="leaderboard_title">LEADER BOARD</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div id="leaderboard_body">
+                            <img src="media/images/stats.png" alt="stats-img" width="48" height="48" class="m-2">
+                            <h4 class="mb-3">Game Stats</h4>
+                            <div class="d-flex ms-auto">
+                                <img src="media/images/multiple-users.png" alt="users-icon" width="24" height="24">
+                                <p class="m-0 ms-1" id="leaderboard_count">0</p>
+                            </div>
+                            <table id="playerTable">
+                                <thead>
+                                    <tr>
+                                        <th>Player</th>
+                                        <th>Score</th>
+                                        <th>Rewards</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="playerData">
+                                    <!-- Player data will be inserted here dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
                         <button type="button" class="btn custom-btn" id="start_again">PLAY AGAIN</button>
                         <button type="button" class="btn custom-btn back-home">HOME</button>
                     </div>
@@ -101,32 +153,109 @@
             </div>
         </div>
 
-        <div class="loader-wrapper d-none">
+        <div class="modal text-center pop-out" tabindex="-1" id="private_rules" data-backdrop="static"
+            data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="private_head">CREATE OR JOIN ROOM</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-flex flex-column align-items-center justify-content-center pvt-modal-body"
+                            id="private_body">
+                            <div class="mb-3 input-group">
+                                <input type="text" class="form-control" placeholder="Room ID" id="roomID" name="roomID">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-primary" type="button" id="join_room">join
+                                        room</button>
+                                </div>
+                            </div>
+                            <p>OR</p>
+                            <div>
+                                <button class="btn custom-btn" id="create_room_btn">CREATE ROOM</button>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column align-items-center justify-content-center d-none pvt-modal-body"
+                            id="create_room_body">
+                            <div class="d-flex align-items-center justify-content-center my-3">
+                                <p class="m-0">rounds</p>
+                                <button class="btn btn-light rounded-circle invisible" id="reduce_rounds">-</button>
+                                <div class="round-number display-6 rounded-circle p-3 d-flex align-items-center justify-content-center mx-2"
+                                    id="no_of_rounds" value="3">
+                                    3
+                                </div>
+                                <button class="btn btn-light rounded-circle" id="add_rounds">+</button>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center my-3">
+                                <p class="m-0">round time</p>
+                                <button class="btn btn-light rounded-circle round-time mx-1 round-number"
+                                    value="15">15s</button>
+                                <button class="btn btn-light rounded-circle round-time mx-1" value="30">30s</button>
+                                <button class="btn btn-light rounded-circle round-time mx-1" value="45">45s</button>
+                                <button class="btn btn-light rounded-circle round-time mx-1" value="60">60s</button>
+                                <button class="btn btn-light rounded-circle round-time mx-1" value="90">90s</button>
+                                <input type="hidden" name="roundTime" id="roundTime" value="15">
+                            </div>
+                            <button class="btn custom-btn my-3" id="create_room">CREATE</button>
+                        </div>
+                        <div class="d-flex flex-column align-items-center justify-content-center d-none pvt-modal-body"
+                            id="players_box">
+                            <div class="d-flex flex-column">
+                                <p class="m-0">room expires in</p>
+                                <button id="countdownTimer" class="btn btn-light disable-hover">15:00</button>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between my-3">
+                                <div class="d-flex flex-column align-items-center justify-content-center my-2 mx-3">
+                                    <p class="m-0 game-table">room id</p>
+                                    <button id="room_id" class="btn disable-hover">xxxxxxx</button>
+                                </div>
+                                <div class="d-flex flex-column align-items-center justify-content-center my-2 mx-3">
+                                    <p class="m-0 game-table">rounds</p>
+                                    <button id="rounds" class="btn disable-hover">3</button>
+                                </div>
+                                <div class="d-flex flex-column align-items-center justify-content-center my-2 mx-3">
+                                    <p class="m-0 game-table">round timer</p>
+                                    <button id="round_time" class="btn disable-hover">15</button>
+                                </div>
+                            </div>
+                            <div class="d-flex ms-auto">
+                                <img src="media/images/multiple-users.png" alt="users-icon" width="24" height="24">
+                                <p class="m-0 ms-1" id="players_count">0</p>
+                            </div>
+                            <p class="d-flex me-auto game-table">players</p>
+                            <div id="playersList" class="me-auto">
+
+                            </div>
+                            <div class="invisible" id="room_start_btn">
+                                <button class="btn custom-btn">START</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="modal-footer">
+                        <button type="button" class="btn custom-btn" id="private_start">LET'S GO</button>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+
+        <div class="loader-wrapper d-none" id="displayLoader">
             <div class="loader"></div>
             <span id="start_guessing"></span>
         </div>
-
         <div class="d-flex align-items-center mt-5 mx2 game-container">
-            <div class="position-absolute top-0 end-0 mx-3 back-home d-none">
-                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0,0,256,256"
-                    style="fill:#000000;">
-                    <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt"
-                        stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0"
-                        font-family="none" font-weight="none" font-size="none" text-anchor="none"
-                        style="mix-blend-mode: normal">
-                        <g transform="scale(10.66667,10.66667)">
-                            <path
-                                d="M12,2c-0.26712,0.00003 -0.52312,0.10694 -0.71094,0.29688l-10.08594,8.80078c-0.12774,0.09426 -0.20313,0.24359 -0.20312,0.40234c0,0.27614 0.22386,0.5 0.5,0.5h2.5v8c0,0.552 0.448,1 1,1h4c0.552,0 1,-0.448 1,-1v-6h4v6c0,0.552 0.448,1 1,1h4c0.552,0 1,-0.448 1,-1v-8h2.5c0.27614,0 0.5,-0.22386 0.5,-0.5c0.00001,-0.15876 -0.07538,-0.30808 -0.20312,-0.40234l-10.08008,-8.79492c-0.00194,-0.00196 -0.0039,-0.00391 -0.00586,-0.00586c-0.18782,-0.18994 -0.44382,-0.29684 -0.71094,-0.29687z">
-                            </path>
-                        </g>
-                    </g>
-                </svg>
-            </div>
             <div class="d-none d-flex flex-column" id="start_game">
                 <div class="canvas-container">
                     <div class="position-relative">
                         <canvas class="canvas-board" id="canva_board"></canvas>
                         <div class="canvas-head">
+                            <div class="volume d-none position-absolute top-0 ms-2 mt-2">
+                                <div id="sound_on">
+                                    <img src="media/images/volume.png" alt="sound" width="24" height="24">
+                                </div>
+                                <div id="sound_off" class="d-none">
+                                    <img src="media/images/mute.png" alt="mute" width="24" height="24">
+                                </div>
+                            </div>
                             <div
                                 class="undo-redo position-absolute top-0 d-flex align-items-center justify-content-center mt-2">
                                 <button id="undo" class="btn btn-default btn-sm btn-icon me-3 p-1">
@@ -165,7 +294,7 @@
                                 class="btn btn-default btn-sm btn-icon position-absolute bottom-0 end-0 mb-3 me-2 p-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                     <path fill="none" d="M0 0h24v24H0V0z"></path>
-                                    <path fill="#3498db" class="main-fill"
+                                    <path fill="#8652ca" class="main-fill"
                                         d="M19 13v5c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-5c0-.55-.45-1-1-1s-1 .45-1 1v6c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-6c0-.55-.45-1-1-1s-1 .45-1 1zm-6-.33l1.88-1.88c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41l-3.59 3.59c-.39.39-1.02.39-1.41 0L7.7 12.2c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0L11 12.67V4c0-.55.45-1 1-1s1 .45 1 1v8.67z">
                                     </path>
                                 </svg>
@@ -196,33 +325,64 @@
                             id="submit_guess_icon">
                     </form>
                 </div>
-                <div class="brush-container d-none p-3">
-                    <input type="range" id="brushSize" min="1" max="50" value="2">
-                    <div>
-                        <button id="paint" class="btn btn-default btn-sm btn-icon me-3 p-2">
-                            <svg width="18px" height="18px" viewBox="0 0 15.821 15.821">
-                                <g id="Group_968" data-name="Group 968" transform="translate(-32.662 -780.398)">
-                                    <path id="Icon_material-edit" data-name="Icon material-edit"
-                                        d="M4.5,17.021v3.3H7.8l9.72-9.72-3.3-3.3ZM20.064,8.049a.875.875,0,0,0,0-1.239L18.007,4.753a.875.875,0,0,0-1.239,0L15.16,6.362l2.066,2.066,1.23,1.23,1.608-1.608Z"
-                                        transform="translate(28.162 775.901)" fill="#8a8a8a"></path>
-                                </g>
-                            </svg>
-                        </button>
-                        <button id="eraser" class="btn btn-default btn-sm btn-icon p-2">
-                            <svg width="18px" height="18px" viewBox="0 0 21.981 21.054">
-                                <g transform="translate(-126.034 -780.395)">
-                                    <g>
-                                        <path
-                                            d="M17.983,3.633l5.566,5.554a2.267,2.267,0,0,1,0,3.193L13.216,22.713a4.506,4.506,0,0,1-6.364,0L2.883,18.744a2.267,2.267,0,0,1,0-3.193L14.8,3.633a2.253,2.253,0,0,1,3.182,0M4.468,17.148l3.98,3.969a2.233,2.233,0,0,0,3.182,0L15.6,17.148l-5.566-5.566Z"
-                                            transform="translate(123.809 777.42)" fill="#8a8a8a"></path>
+                <div class="brush-container d-none">
+                    <div class="d-flex align-items-center flex-wrap p-2">
+                        <div class="color-container current-color m-1">
+                            <button class="btn btn-default color-btn" data-color="#000000"></button>
+                        </div>
+                        <!-- <div class="color-container m-1">
+                            <button class="btn btn-default color-btn" data-color="#ffffff"></button>
+                        </div> -->
+                        <div class="color-container m-1">
+                            <button class="btn btn-default color-btn" data-color="#8144d3"></button>
+                        </div>
+                        <div class="color-container m-1">
+                            <button class="btn btn-default color-btn" data-color="#87CEEB"></button>
+                        </div>
+                        <div class="color-container m-1">
+                            <button class="btn btn-default color-btn" data-color="#3A5F0B"></button>
+                        </div>
+                        <div class="color-container m-1">
+                            <button class="btn btn-default color-btn" data-color="#EC2D01"></button>
+                        </div>
+                        <div class="color-container m-1">
+                            <button class="btn btn-default color-btn" data-color="#FFDF00"></button>
+                        </div>
+                        <div class="any-color-container m-1">
+                            <div class="color-picker-container color-btn">
+                                <input type="color" id="colorPicker">
+                            </div>
+                        </div>
+                        <input type="hidden" name="colorValue" id="colorValue" value="#000000">
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between py-2 px-4 brushsize-container mb-3">
+                        <input type="range" id="brushSize" min="1" max="50" value="2">
+                        <div>
+                            <button id="paint" class="btn btn-default btn-sm btn-icon me-3 p-2">
+                                <svg width="18px" height="18px" viewBox="0 0 15.821 15.821">
+                                    <g id="Group_968" data-name="Group 968" transform="translate(-32.662 -780.398)">
+                                        <path id="Icon_material-edit" data-name="Icon material-edit"
+                                            d="M4.5,17.021v3.3H7.8l9.72-9.72-3.3-3.3ZM20.064,8.049a.875.875,0,0,0,0-1.239L18.007,4.753a.875.875,0,0,0-1.239,0L15.16,6.362l2.066,2.066,1.23,1.23,1.608-1.608Z"
+                                            transform="translate(28.162 775.901)" fill="#8a8a8a"></path>
                                     </g>
-                                </g>
-                            </svg>
-                        </button>
+                                </svg>
+                            </button>
+                            <button id="eraser" class="btn btn-default btn-sm btn-icon p-2">
+                                <svg width="18px" height="18px" viewBox="0 0 21.981 21.054">
+                                    <g transform="translate(-126.034 -780.395)">
+                                        <g>
+                                            <path
+                                                d="M17.983,3.633l5.566,5.554a2.267,2.267,0,0,1,0,3.193L13.216,22.713a4.506,4.506,0,0,1-6.364,0L2.883,18.744a2.267,2.267,0,0,1,0-3.193L14.8,3.633a2.253,2.253,0,0,1,3.182,0M4.468,17.148l3.98,3.969a2.233,2.233,0,0,0,3.182,0L15.6,17.148l-5.566-5.566Z"
+                                                transform="translate(123.809 777.42)" fill="#8a8a8a"></path>
+                                        </g>
+                                    </g>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div id="submit_drawing" class="d-none">
-                    <button type="button" class="btn custom-btn" id="add_drawing_btn">Add Drawing</button>
+                <div id="submit_drawing" class="d-none position-absolute top-0 start-0">
+                    <button type="button" class="btn custom-btn m-2" id="add_drawing_btn">Add</button>
                 </div>
             </div>
 
@@ -236,16 +396,24 @@
             </div>
         </div>
     </div>
+    <audio src="media/audio/correct.mp3" id="correct_sound"></audio>
+    <audio src="media/audio/start.mp3" id="start_sound"></audio>
+    <audio src="media/audio/end.mp3" id="end_sound"></audio>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
     <script src="assets/scripts/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
     <script src="assets/scripts/privateDrawing.js"></script>
     <script>
         const textInput = document.getElementById("type_guess");
         const user_image = document.getElementById('user_image');
+        const sound_on = document.getElementById('sound_on');
+        const sound_off = document.getElementById('sound_off');
         const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
+        const minRounds = 3;
+        const maxRounds = 10;
+        let currentRound = 3;
         window.onload = function () {
             textInput.focus();
         };
@@ -264,7 +432,29 @@
         else {
             user_image.src = 'media/images/avatars/panda.svg';
         }
+        sound_on.addEventListener('click', function () {
+            localStorage.setItem('drawdash_mute', 'mute');
+            sound_on.classList.add('d-none');
+            sound_off.classList.remove('d-none');
+        });
+
+        sound_off.addEventListener('click', function () {
+            localStorage.setItem('drawdash_mute', 'play');
+            sound_off.classList.add('d-none');
+            sound_on.classList.remove('d-none');
+        });
+
+        if (localStorage.getItem('drawdash_mute') == 'mute') {
+            sound_on.classList.add('d-none');
+            sound_off.classList.remove('d-none');
+        }
+        else if ((localStorage.getItem('drawdash_mute') == 'play')) {
+            sound_off.classList.add('d-none');
+            sound_on.classList.remove('d-none');
+        }
+
         $(document).ready(function () {
+            $('.pvt-modal-body').addClass('d-none');
             const constantModes = ['solo', 'private', 'contribute', 'sketch']
             $('#gamerules').modal({ backdrop: 'static', keyboard: false })
             $('#gamerules').modal('show');
@@ -303,20 +493,24 @@
                 $('.undo-redo').addClass('d-none');
                 $('#typebox').removeClass('d-none');
                 $('#rules_body p').text('Guess as many as words you can in 120s. Each round lasts 15 seconds maximum');
+                $('.volume').removeClass('d-none')
             }
             else if (mode == 'private') {
                 $('#typebox').removeClass('d-none');
-                $('#rules_body p').text('Create Your Private Room');
+                $('#rules_body p').text('Create Your Private Room to - Play with friends. Each player gets turn to draw while other guesses it.');
+                $('.volume').removeClass('d-none')
             }
             else if (mode == 'contribute') {
                 $('.undo-redo').addClass('d-none');
                 $('#player_list').addClass('d-none');
                 $('#submit_drawing').removeClass('d-none');
                 $('#rules_body p').text('Draw for a word');
+                $('.brush-container').removeClass('d-none');
+                $('.brush-container').addClass('d-flex flex-column align-items-center justify-content-center');
             }
             else if (mode == 'sketch') {
                 $('.brush-container').removeClass('d-none');
-                $('.brush-container').addClass('d-flex align-items-center justify-content-between');
+                $('.brush-container').addClass('d-flex flex-column align-items-center justify-content-center');
                 $('#rules_body p').text('Sketch & Save your Drawings');
             }
             else {
@@ -338,19 +532,19 @@
                 else if (mode == 'sketch') {
                     drawing(saveDrawingData = false);
                 }
-                else if (mode == 'contribute' || mode == 'public') {
+                else if (mode == 'private') {
+                    $('.game-container').addClass('d-none');
+                    $('#private_body').removeClass('d-none');
+                    $('#private_rules').modal({ backdrop: 'static', keyboard: false })
+                    $("#private_rules").modal('show');
+                }
+                else if (mode == 'contribute') {
+                    $('.back-home').removeClass('d-none');
                     generateRandomWords();
-                    if (mode == 'contribute') {
-                        drawing(saveDrawingData = true);
-                    }
-                    else if (mode == 'private') {
-                        joinRoom();
-                    }
+                    drawing(saveDrawingData = true);
                 }
                 $('#start_game').removeClass('d-none');
-                $('.back-home').removeClass('d-none');
             })
-
             $('#word_start').click(function () {
                 if ($('.random-word-btn').hasClass('selected')) {
                     $('#random_word_modal').modal('hide');
@@ -360,11 +554,105 @@
                     $('#modal_body p').removeClass('d-none');
                 }
             })
+            $('.color-btn').each(function () {
+                // Get the value of the data-color attribute for each element
+                var color = $(this).data('color');
+                // Set the background color of each element
+                $(this).css('background-color', color);
+            });
+            $("#colorPicker").change(function () {
+                $('#colorValue').val($(this).val());
+                $('.current-color').removeClass('current-color');
+                $(this).parent().parent().addClass('current-color');
+            });
+            $('.color-btn').click(function () {
+                $('.current-color').removeClass('current-color');
+                $('#colorValue').val($(this).data('color'));
+                $(this).parent().addClass('current-color');
+            })
+            $('#download').click(() => {
+                saveCanvasAsImage();
+            });
             $('#start_again').click(function () {
+                window.location.reload();
+            });
+            $('#pvt_start_again').click(function () {
                 window.location.reload();
             });
             $('.back-home').click(function () {
                 window.location.href = '/home';
+            })
+            $('#paint svg path').css('fill', '#3498db');
+            $('#paint').css('border', '1px solid #3498db');
+
+            $('#create_room_btn').click(() => {
+                $('.pvt-modal-body').addClass('d-none');
+                $('#create_room_body').removeClass('d-none');
+            })
+            $('.round-time').click(function () {
+                $('.round-time').removeClass('round-number');
+                $(this).addClass('round-number');
+                $('#roundTime').val($(this).val());
+            })
+            $('#no_of_rounds').val(3);
+            $('#add_rounds').click(function () {
+                currentRound++;
+                if (currentRound > minRounds) {
+                    $('#reduce_rounds').removeClass('invisible');
+                }
+                else {
+                    $('#reduce_rounds').addClass('invisible');
+                }
+                if (currentRound <= maxRounds) {
+                    if (currentRound >= maxRounds) {
+                        $('#add_rounds').addClass('invisible');
+                    }
+                    else {
+                        $('#add_rounds').removeClass('invisible');
+                    }
+                    $('#no_of_rounds').text(currentRound);
+                    $('#no_of_rounds').val(currentRound);
+                }
+            });
+            $('#reduce_rounds').click(function () {
+                if (currentRound > minRounds) {
+                    currentRound--;
+                    $('#no_of_rounds').text(currentRound);
+                    $('#no_of_rounds').val(currentRound);
+                    $('#reduce_rounds').removeClass('invisible');
+                    if (currentRound <= minRounds) {
+                        $('#reduce_rounds').addClass('invisible');
+                    }
+                }
+                if (currentRound >= maxRounds) {
+                    $('#add_rounds').addClass('invisible');
+                }
+                else {
+                    $('#add_rounds').removeClass('invisible');
+                }
+            });
+
+            $('#create_room').click(function () {
+                $('.pvt-modal-body').addClass('d-none');
+                $('#players_box').removeClass('d-none');
+                const roundTime = $('#roundTime').val();
+                const numberOfRounds = $('#no_of_rounds').val();
+                const requestData = { roundTime, numberOfRounds };
+                // Send request to server to create a room with additional details
+                $.post('/createRoom', requestData, function (data) {
+                    const roomID = data.roomID;
+                    joinCreatedRoom(roomID, isHost = true);
+                });
+                $('#round_time').text($('#roundTime').val());
+                $('#rounds').text($('#no_of_rounds').val());
+            });
+
+            $('#join_room').click(function () {
+                $('#room_start_btn').addClass('invisible')
+                $('.pvt-modal-body').addClass('d-none');
+                $('#players_box').removeClass('d-none');
+                const roomID = $('#roomID').val();
+                joinCreatedRoom(roomID, isHost = false);
             })
         })
     </script>
