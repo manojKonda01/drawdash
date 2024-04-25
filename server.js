@@ -198,15 +198,15 @@ app.post('/createRoom', (req, res) => {
     activeRooms[roomID] = room;
 
     // Schedule expiration timer for 15 minutes
-    setTimeout(() => {
-        // Check if the room is still active
-        if (activeRooms[roomID]) {
-            // Room has expired, remove it from active rooms
-            delete activeRooms[roomID];
-            // Notify clients that the room has expired
-            io.to(roomID).emit('roomExpired');
-        }
-    }, 15 * 60 * 1000); // 15 minutes in milliseconds
+    // setTimeout(() => {
+    //     // Check if the room is still active
+    //     if (activeRooms[roomID]) {
+    //         // Room has expired, remove it from active rooms
+    //         delete activeRooms[roomID];
+    //         // Notify clients that the room has expired
+    //         io.to(roomID).emit('roomExpired');
+    //     }
+    // }, 15 * 60 * 1000); // 15 minutes in milliseconds
 
     // Send the room ID back to the client
     res.json({ roomID });
