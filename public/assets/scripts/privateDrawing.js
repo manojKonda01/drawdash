@@ -933,9 +933,10 @@ function joinCreatedRoom(roomID, isHost = false) {
     $('#submit_guess_icon').click(function (event) {
         checkGuess(event);
     })
-    function checkGuess(k) {
+    function checkGuess() {
         event.preventDefault();
         const inputValue = $('#type_guess').val()
+        console.log(inputValue);
         socket.emit('checkGuess', socket.id, roomID, playerName, playerImage, inputValue);
         $('#type_guess').val('');
     }
@@ -946,6 +947,7 @@ function joinCreatedRoom(roomID, isHost = false) {
         listItem.classList.add('chat-item', 'py-1');
         imageSrc = playerImage;
         const img = `<img src=${imageSrc} alt='user-image'></img>`;
+        console.log(sentGuess);
         if (sentGuess === 'correct') {
             if ($('#sound_off').hasClass('d-none')) {
                 correct_audio.play();
