@@ -14,7 +14,7 @@ const io = socketIo(server);
 const bodyParser = require('body-parser');
 
 
-const { connectToMongoDB, insertDrawingData, getRandomDrawingData, getCountRandomDrawingData, registerUser, googleSignIn } = require('./DB')
+const { connectToMongoDB, insertDrawingData, getRandomDrawingData, getCountRandomDrawingData, registerUser, googleSignIn, updateUserDetails, updateUserRewards} = require('./DB')
 
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -61,6 +61,39 @@ app.post('/googlesignin', async (req, res) => {
     try {
         const { username, name, imageurl } = req.body;
         const result = await googleSignIn(username, name, imageurl);
+        if (result.success) {
+            res.status(200).json(result);
+        }
+        else {
+            res.status(500).json(result);
+        }
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+})
+// api to update user
+app.post('/updateUser', async (req, res) => {
+    try {
+        const { username , newUsername, newName, newImageUrl} = req.body;
+        const result = await updateUserDetails(username , newUsername, newName, newImageUrl);
+        if (result.success) {
+            res.status(200).json(result);
+        }
+        else {
+            res.status(500).json(result);
+        }
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// api to update rewards
+app.post('/updateRewards', async (req, res) => {
+    try {
+        const { username , newRewards} = req.body;
+        const result = await updateUserRewards(username , newRewards);
         if (result.success) {
             res.status(200).json(result);
         }

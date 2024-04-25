@@ -402,6 +402,7 @@ function soloPlay() {
                 }
                 $('#scoreboard').modal({ backdrop: 'static', keyboard: false });
                 $('#scoreboard').modal('show');
+                saveRewards(rewards)
                 reload = false;
             }
             console.log('All rounds completed!');
@@ -421,12 +422,12 @@ function soloPlay() {
         handlePlayerGuess(inputValue);
         $('#type_guess').val('');
     }
+    const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
     // Function to handle player's guess
     function handlePlayerGuess(guess) {
         const correct_audio = document.getElementById('correct_sound');
         // Check if the guess is correct
         const correctGuess = $('#hidden_word').val().toUpperCase() == guess.toUpperCase();
-        const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
         var listItem = document.createElement('li');
         const chatList = document.getElementById('chat_list');
 
@@ -500,9 +501,38 @@ function soloPlay() {
             $('#scoreboard').modal({ backdrop: 'static', keyboard: false })
             $('#scoreboard').modal('show');
             console.log('Drawing process completed!');
+            saveRewards(rewards);
             reload = false;
             // You can add any additional logic here when the total duration is reached
         }, totalTime);
+    }
+    function saveRewards(rewards){
+        const oldRewards = parseInt(JSON.parse(localStorage.getItem('drawdash_user_rewards')).rewards);
+        fetch('/updateRewards', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({username: userSession.username, newRewards: parseInt(rewards)})
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Handle successful response
+                    return response.json();
+                } else {
+                    // Handle error response
+                    throw new Error('Failed to update user details');
+                }
+            })
+            .then(data => {
+                // Handle data returned by the server
+                console.log(oldRewards, rewards, oldRewards + parseInt(rewards));
+                localStorage.setItem('drawdash_user_rewards', JSON.stringify({ rewards: oldRewards + parseInt(rewards)}));
+            })
+            .catch(error => {
+                // Handle fetch errors
+                console.error('Error:', error);
+            });
     }
     // Function to draw lines step by step
     function drawLinesStepByStep(drawingData) {

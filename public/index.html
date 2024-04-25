@@ -211,14 +211,15 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ username: username.value }),
+                    body: JSON.stringify({ username: username.value, name: username.value }),
                 })
                     .then(response => response.json())
                     .then(json => {
                         if (json) {
                             loader.classList.add('d-none');
                             if (json.success) {
-                                localStorage.setItem('drawdash_user', JSON.stringify({ username: username.value, imageurl: 'media/images/avatars/panda.svg' }));
+                                localStorage.setItem('drawdash_user', JSON.stringify({ username: username.value, imageurl: 'media/images/avatars/panda.svg', name: username.value }));
+                                localStorage.setItem('drawdash_user_rewards', JSON.stringify({ rewards: 0}));
                                 window.location.href = '/home';
                             }
                             else {

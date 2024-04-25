@@ -458,18 +458,23 @@ canvas {
 .avatar-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 1.5rem;
+    gap: 1rem;
     align-items: stretch;
     justify-content: center;
 }
-
+.avatar-main-container{
+    border-radius: 50%;
+    border: 1px solid transparent;
+}
 .avatar-container {
     border-radius: 50%;
     /* Make it a circle */
     background-color: white;
     /* White background */
 }
-
+.avatar-selected{
+    border: 1px solid white !important;
+}
 .icon-selected {
     position: absolute;
     top: 0;
@@ -686,6 +691,12 @@ th, td {
 th {
     background-color: #f2f2f2;
 }
+.rewards-container{
+    font-family: 'sports-world';
+    background: white;
+    color: black;
+    border-radius: 10px;
+}
 @media (max-width: 767px) {
     body {
         background-image: url('/media/images/floor.png'), url('/media/images/pd_background.svg');
@@ -753,6 +764,10 @@ th {
     #undo svg path,
     #redo svg path {
         fill: white;
+    }
+    .avatar-img{
+        width: 40px !important;
+        height: 40px !important;
     }
 }
 
