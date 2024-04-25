@@ -302,7 +302,7 @@ function selectDrawer(roomID) {
 }
 
 let roundTimer = {};
-let bonusScore = 0;
+let bonusScore = {};
 let roundInterval = {};
 
 function drawerSelectWord(roomID, word) {
@@ -333,7 +333,7 @@ function preRoundFunction(roomID){
 // Function to start a new round in a room
 function startNewRound(roomID) {
     if (activeRooms.hasOwnProperty(roomID)) {
-        bonusScore = 0;
+        bonusScore[roomID] = 0;
         // Select a drawer for the next round
         const room = activeRooms[roomID];
         const currentRound = room.currentRound || 0; // Get the current round count or default to 0
@@ -356,7 +356,7 @@ function startNewRound(roomID) {
                     }
                 }
                 const roundTime = room.roundTime;
-                bonusScore = parseInt(roundTime);
+                bonusScore[roomID] = parseInt(roundTime);
                 io.to(roomID).emit('newRound', drawer.id, drawer.name);
                 room.currentDrawer = drawer.id;
                 activeRooms[roomID].currentDrawer = drawer.id;
@@ -364,11 +364,11 @@ function startNewRound(roomID) {
                 room.currentRound = currentRound + 1; // Increment the current round count
                 // Start next round after timeout
                 function updateTimer(){
-                    bonusScore--;
-                    if (bonusScore < 0) {
+                    bonusScore[roomID]--;
+                    if (bonusScore[roomID] < 0) {
                         clearInterval(roundInterval[roomID]); // Stop the timer when it reaches 120 seconds
                     }
-                    io.to(roomID).emit('roundTime', bonusScore);
+                    io.to(roomID).emit('roundTime', bonusScore[roomID]);
                 }
                 roundInterval[roomID] = setInterval(updateTimer, 1000);
                 roundTimer[roomID] = setTimeout(() => {
@@ -457,14 +457,14 @@ io.on('connection', (socket) => {
             console.log(correctWord, guess);
             const isCorrect = guess.toLowerCase() === correctWord.toLowerCase();
             const sentGuess = isCorrect ? 'correct' : guess;
-            io.to(roomID).emit('guessResult', playerName, playerImage, sentGuess, bonusScore);
+            io.to(roomID).emit('guessResult', playerName, playerImage, sentGuess, bonusScore[roomID]);
             if (isCorrect) {
                 if (activeRooms[roomID].players) {
                     for (let i = 0; i < activeRooms[roomID].players.length; i++) {
                         if (activeRooms[roomID].players[i].id === id) {
                             activeRooms[roomID].players[i].isCorrect = true;
                             activeRooms[roomID].players[i].guessCount++;
-                            activeRooms[roomID].players[i].gameScore += parseInt(bonusScore)
+                            activeRooms[roomID].players[i].gameScore += parseInt(bonusScore[roomID])
                             // break; // Exit the loop once the match is found
                         }
                         if (activeRooms[roomID].players[i].id === activeRooms[roomID].currentDrawer) {
