@@ -78,12 +78,14 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
-        const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
+        let userSession = JSON.parse(localStorage.getItem('drawdash_user'));
+        let userRewards = localStorage.getItem('drawdash_user_rewards');
+        getUserDetails(userSession.username);
         const saveBtn = document.getElementById('save');
         const get_username = document.getElementById('get_username');
         const user_image = document.getElementById('user_image');
-        if (localStorage.getItem('drawdash_user_rewards')) {
-            document.getElementById('rewards').textContent = formatNumber(parseInt(JSON.parse(localStorage.getItem('drawdash_user_rewards')).rewards));
+        if (userRewards) {
+            document.getElementById('rewards').textContent = formatNumber(parseInt(JSON.parse(userRewards).rewards));
         }
         function formatNumber(number) {
             if (number >= 1000 && number < 1000000) {
@@ -190,7 +192,6 @@
                     newName: name.value === '' ? userSession.name : name.value,
                     newImageUrl: elements[0].querySelector('img').value
                 };
-                console.log(userDetails);
                 // Make a POST request to the server
                 fetch('/updateUser', {
                     method: 'POST',
@@ -224,7 +225,6 @@
                         console.error('Error:', error);
                     });
             }
-            console.log(username.value, name.value, elements[0].querySelector('img').value);
         })
         document.getElementById('contribute').addEventListener('click', function () {
             banner.classList.add('pop-in')
@@ -233,6 +233,46 @@
                 window.location.href = '/play#contribute';
             }, 350);
         });
+        function getUserDetails(username) {
+            fetch('/getUserDetails', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({username: username})
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // Handle successful response
+                        return response.json();
+                    } else {
+                        // Handle error response
+                        throw new Error('Failed to update user details');
+                    }
+                })
+                .then(data => {
+                    if(data.data){
+                        const userDetails = data.data;
+                        const username = userDetails.username;
+                        const rewards = userDetails.rewards ? userDetails.rewards : 0;
+                        const name = userDetails.name ? userDetails.name : userDetails.username;
+                        const imageurl = userDetails.imageurl ? userDetails.imageurl : 'media/images/avatars/panda.svg';
+                        localStorage.setItem('drawdash_user', JSON.stringify({ username: username, imageurl: imageurl, name: name }));
+                        localStorage.setItem('drawdash_user_rewards', JSON.stringify({ rewards: rewards}));
+                        userSession = JSON.parse(localStorage.getItem('drawdash_user'));
+                        username.placeholder = username;
+                        username.value = '';
+                        name.placeholder = name;
+                        name.value = '';
+                        get_username.textContent = username;
+                        user_image.src = imageurl;
+                    }
+                })
+                .catch(error => {
+                    // Handle fetch errors
+                    console.error('Error:', error);
+                });
+        }
     </script>
 </body>
 

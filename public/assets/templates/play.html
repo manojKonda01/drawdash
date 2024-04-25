@@ -522,6 +522,7 @@
                 $(this).toggleClass('selected');
                 active = true;
             })
+            $('.back-home').removeClass('d-none');
             $('#start').click(function () {
                 $('#gamerules').modal('hide');
                 if (mode == 'solo') {
@@ -540,7 +541,7 @@
                     $("#private_rules").modal('show');
                 }
                 else if (mode == 'contribute') {
-                    $('.back-home').removeClass('d-none');
+                    // $('.back-home').removeClass('d-none');
                     generateRandomWords();
                     drawing(saveDrawingData = true);
                 }

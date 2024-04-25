@@ -225,4 +225,25 @@ async function updateUserRewards(username, newRewards) {
         return { success: false, message: 'Internal Server Error' };
     }
 }
-module.exports = { insertDrawingData, connectToMongoDB, getRandomDrawingData, getCountRandomDrawingData, registerUser, googleSignIn, updateUserDetails, updateUserRewards }
+
+async function getUserDetails(username) {
+    try {
+        await connectToMongoDB();
+        const db = client.db(DB);
+        const collection = db.collection('user');
+
+        const user = await collection.findOne({ username });
+        console.log(user);
+        if (user) {
+            return { success: true, data: user, message: 'fetched succesfully' }
+        }
+        else {
+            return { success: false, message: 'no such user' }
+        }
+    } catch (error) {
+        // Handle errors
+        console.error('Error updating rewards:', error);
+        return { success: false, message: 'Internal Server Error' };
+    }
+}
+module.exports = { insertDrawingData, connectToMongoDB, getRandomDrawingData, getCountRandomDrawingData, registerUser, googleSignIn, updateUserDetails, updateUserRewards, getUserDetails }
