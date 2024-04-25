@@ -63,7 +63,7 @@
                         <p class="text-danger mt-4 d-none">Select A Word</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn custom-btn back-home d-none">EXIT</button>
+                        <button type="button" class="btn custom-btn back-home exit-home invisible">EXIT</button>
                         <button type="button" class="btn custom-btn" id="word_start">DRAW</button>
                     </div>
                 </div>
@@ -541,7 +541,7 @@
                     $("#private_rules").modal('show');
                 }
                 else if (mode == 'contribute') {
-                    // $('.back-home').removeClass('d-none');
+                    $('.exit-home').removeClass('invisible');
                     generateRandomWords();
                     drawing(saveDrawingData = true);
                 }
