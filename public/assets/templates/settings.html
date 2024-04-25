@@ -56,8 +56,11 @@
 
                         </div>
                     </div>
-                    <div class="" id="contribute">
-                        <p class="mode-txt px-3 py-2">CONTRIBUTE</p>
+                    <div class="" id="logout">
+                        <p class="mode-txt px-3 py-2">LOG OUT</p>
+                    </div>
+                    <div class="position-absolute top-0 start-0 mt-2 ms-2" id="contribute">
+                        <img src="media/images/add-icon.png" alt="add-icon" width="24" height="24">
                     </div>
                 </div>
                 <div class="d-flex justify-content-between">
@@ -80,7 +83,9 @@
     <script>
         let userSession = JSON.parse(localStorage.getItem('drawdash_user'));
         let userRewards = localStorage.getItem('drawdash_user_rewards');
-        getUserDetails(userSession.username);
+        if(userSession){
+            getUserDetails(userSession.username);
+        }
         const saveBtn = document.getElementById('save');
         const get_username = document.getElementById('get_username');
         const user_image = document.getElementById('user_image');
@@ -273,6 +278,12 @@
                     console.error('Error:', error);
                 });
         }
+        document.getElementById('logout').addEventListener('click', function(){
+            if(window.confirm('Do you really want to logout?')){
+                localStorage.clear();
+                window.location.href = '/'
+            }
+        })
     </script>
 </body>
 

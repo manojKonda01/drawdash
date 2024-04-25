@@ -114,14 +114,14 @@ body {
 #sound_off,
 .setting-img,
 #settings,
-#contribute {
+#contribute, #logout{
     cursor: pointer;
 }
 
-/* #contribute:hover{
+#logout p:hover{
     color: black;
     background: white;
-} */
+}
 .modal-title,
 .modal-footer {
     font-family: 'sports-world';
