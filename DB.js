@@ -90,9 +90,9 @@ async function getCountRandomDrawingData(count) {
 
 async function registerUser(username, name, imageurl) {
     try {
-        if(!username){
+        if (!username) {
             console.log('Null User Name');
-            return {success: false, message: 'Null Username'}
+            return { success: false, message: 'Null Username' }
         }
         await connectToMongoDB();
         const db = client.db(DB);
@@ -102,13 +102,13 @@ async function registerUser(username, name, imageurl) {
             console.log('User with this username already exists.');
             return { success: false, message: 'User already exists' };
         }
-        const result = await  collection.insertOne({
+        const result = await collection.insertOne({
             username: username,
             name: name,
             imageurl: imageurl
         })
         console.log(result);
-        return {'success': result.acknowledged, message: 'user registered successfully'};
+        return { 'success': result.acknowledged, message: 'user registered successfully' };
     }
     catch (error) {
         console.error('unable to check username', error)
@@ -124,9 +124,9 @@ async function registerUser(username, name, imageurl) {
 
 async function googleSignIn(username, name, imageurl) {
     try {
-        if(!username){
+        if (!username) {
             console.log('Null User Name');
-            return {success: false, message: 'Null Username'}
+            return { success: false, message: 'Null Username' }
         }
         await connectToMongoDB();
         const db = client.db(DB);
@@ -134,15 +134,15 @@ async function googleSignIn(username, name, imageurl) {
         const existingUser = await collection.findOne({ username });
         if (existingUser) {
             console.log('User with this username already exists.');
-            return { success: true, message: 'Welcome '+name };
+            return { success: true, message: 'Welcome ' + name };
         }
-        const result = await  collection.insertOne({
+        const result = await collection.insertOne({
             username: username,
             name: name,
             imageurl: imageurl
         })
         console.log(result);
-        return {'success': result.acknowledged, message: 'user registered successfully'};
+        return { 'success': result.acknowledged, message: 'user registered successfully' };
     }
     catch (error) {
         console.error('unable to check username', error)
@@ -155,4 +155,95 @@ async function googleSignIn(username, name, imageurl) {
         await client.close();
     }
 }
-module.exports = { insertDrawingData, connectToMongoDB, getRandomDrawingData, getCountRandomDrawingData, registerUser, googleSignIn}
+async function updateUserDetails(username, newUsername, newName, newImageUrl) {
+    try {
+        // Connect to the MongoDB server
+        await connectToMongoDB();
+
+        // Access the database
+        const db = client.db(DB);
+
+        const collection = db.collection('user');
+
+        // Find user by current username and update username, name, and image URL
+        const result = await collection.updateOne(
+            { username: username }, // Filter to find the user
+            {
+                $set: {
+                    username: newUsername,
+                    name: newName,
+                    imageurl: newImageUrl
+                }
+            } // Update operation
+        );
+        // Check if the update was successful
+        if (result.modifiedCount === 1) {
+            console.log('User updated successfully');
+            return { success: true, message: 'user data updated' };
+        } else {
+            console.log('User not found or not updated');
+            return { success: false, message: 'User not found or not updated' };
+        }
+    } catch (err) {
+        console.log(err);
+        return { 'success': false, 'message': err };
+    } finally {
+        // Close the connection
+        await client.close();
+    }
+}
+
+// Function to find a user by their username and update their rewards
+async function updateUserRewards(username, newRewards) {
+    try {
+        await connectToMongoDB();
+        const db = client.db(DB);
+        const collection = db.collection('user');
+
+        const user = await collection.findOne({ username });
+        if (user) {
+            // Update user rewards
+            let userRewards = user.rewards ? user.rewards : 0;
+            const updatedRewards = parseInt(userRewards) + parseInt(newRewards);
+            const result = await collection.updateOne(
+                { username: username }, // Filter to find the user
+                { $set: { rewards: updatedRewards } } // Update operation
+            );
+
+            // Check if the update was successful
+            if (result.modifiedCount === 1) {
+                console.log('User rewards updated successfully');
+                return { success: true, message: 'Rewards updated successfully' };
+            } else {
+                console.log('User not found or rewards not updated');
+                return { success: false, message: 'User not found or rewards not updated' };
+            }
+        }
+    } catch (error) {
+        // Handle errors
+        console.error('Error updating rewards:', error);
+        return { success: false, message: 'Internal Server Error' };
+    }
+}
+
+async function getUserDetails(username) {
+    try {
+        await connectToMongoDB();
+        const db = client.db(DB);
+        const collection = db.collection('user');
+
+        const user = await collection.findOne({ username });
+        console.log(user);
+        if (user) {
+            return { success: true, data: user, message: 'fetched succesfully' }
+        }
+        else {
+            return { success: false, message: 'no such user' }
+        }
+    } catch (error) {
+        // Handle errors
+        console.error('Error updating rewards:', error);
+        return { success: false, message: 'Internal Server Error' };
+    }
+}
+module.exports = { insertDrawingData, connectToMongoDB, getRandomDrawingData, getCountRandomDrawingData, registerUser, googleSignIn, updateUserDetails, updateUserRewards, getUserDetails }

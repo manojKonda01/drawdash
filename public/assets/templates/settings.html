@@ -27,8 +27,16 @@
                 <div class="board-top d-flex">
                     <div class="board-head container w-50">
                         <div class="l-dot white-dot"></div>
-                        <div id="get_username" class="mx-2">Settings</div>
+                        <!-- <div id="get_username" class="mx-2">Settings</div> -->
+                        <div>
+                            <img src="" alt="" id="user_image">
+                        </div>
+                        <div id="get_username" class="mx-2"></div>
                         <div class="r-dot white-dot"></div>
+                    </div>
+                    <div class="d-flex align-items-center position-absolute end-0 me-1 rewards-container px-2 py-1">
+                        <p id="rewards" class="m-0">0</p>
+                        <img src="media/images/rewards.png" alt="rewards-img" width="24" height="24" class="ml-1">
                     </div>
                 </div>
                 <div class="d-flex input-container my-3">
@@ -44,12 +52,15 @@
                     </div>
                     <div class="input-holder mb-3 mt-2">
                         <div>Choose Avatar</div>
-                        <div id="avatars_container" class="avatar-list mx-5 my-3">
+                        <div id="avatars_container" class="avatar-list mx-3 my-3">
 
                         </div>
                     </div>
-                    <div class="" id="contribute">
-                        <p class="mode-txt px-3 py-2">CONTRIBUTE</p>
+                    <div class="" id="logout">
+                        <p class="mode-txt px-3 py-2">LOG OUT</p>
+                    </div>
+                    <div class="position-absolute top-0 start-0 mt-2 ms-2" id="contribute">
+                        <img src="media/images/add-icon.png" alt="add-icon" width="24" height="24">
                     </div>
                 </div>
                 <div class="d-flex justify-content-between">
@@ -70,8 +81,44 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
-        const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
+        let userSession = JSON.parse(localStorage.getItem('drawdash_user'));
+        let userRewards = localStorage.getItem('drawdash_user_rewards');
+        if(userSession){
+            getUserDetails(userSession.username);
+        }
+        const saveBtn = document.getElementById('save');
+        const get_username = document.getElementById('get_username');
+        const user_image = document.getElementById('user_image');
+        if (userRewards) {
+            document.getElementById('rewards').textContent = formatNumber(parseInt(JSON.parse(userRewards).rewards));
+        }
+        function formatNumber(number) {
+            if (number >= 1000 && number < 1000000) {
+                return (number / 1000).toFixed(1) + 'K';
+            } else if (number >= 1000000) {
+                return (number / 1000000).toFixed(1) + 'M';
+            } else {
+                return number.toString();
+            }
+        }
+        if (userSession) {
+            get_username.textContent = userSession.username;
+            if (userSession.imageurl) {
+                user_image.src = userSession.imageurl;
+            }
+            else {
+                user_image.src = 'media/images/avatars/panda.svg';
+            }
+        }
+        let dataChange = false;
         window.onload = function () {
+            // Check if there is an active session (you need to implement this logic)
+            const activeSession = localStorage.getItem('drawdash_user');
+
+            // If there is no active session, redirect to the main URL
+            if (!activeSession) {
+                window.location.href = '/'; // Replace '/main-url' with your main URL
+            }
             // Fetch the avatars.txt file
             fetch('avatars.txt')
                 .then(response => response.text())
@@ -82,26 +129,36 @@
                     // Display each URL in the avatarList div
                     const avatarList = document.getElementById('avatars_container');
                     urls.forEach(url => {
+                        const mainContainer = document.createElement('div');
+                        mainContainer.classList.add('avatar-main-container');
+                        mainContainer.classList.add('p-1');
+
                         const container = document.createElement('div');
                         container.classList.add('avatar-container');
 
                         const img = document.createElement('img');
                         img.src = url;
+                        img.value = url
                         img.width = 48;
                         img.height = 48;
                         img.classList.add('avatar-img');
                         container.style.overflow = 'hidden';
                         if (userSession.imageurl) {
                             if (url == userSession.imageurl) {
-                                container.classList.add('position-relative');
-                                const editIcon = document.createElement('i');
-                                editIcon.classList.add('fa-solid', 'fa-pen', 'icon-selected'); // Assuming Font Awesome is used for edit icon
-                                container.style.overflow = '';
-                                container.appendChild(editIcon);
+                                mainContainer.classList.add('avatar-selected');
                             }
                         }
                         container.appendChild(img);
-                        avatarList.appendChild(container);
+                        mainContainer.appendChild(container);
+                        avatarList.appendChild(mainContainer);
+                        mainContainer.addEventListener('click', function () {
+                            const elements = document.querySelectorAll('.avatar-selected');
+                            // Loop through each element and remove the class
+                            elements.forEach(element => {
+                                element.classList.remove('avatar-selected');
+                            });
+                            mainContainer.classList.add('avatar-selected');
+                        })
                     });
                 })
                 .catch(error => console.error('Error fetching avatars:', error));
@@ -115,8 +172,64 @@
             username.placeholder = userSession.username ? userSession.username : '';
             name.placeholder = userSession.name ? userSession.name : '';
         }
+        function enableSave() {
+            saveBtn.classList.remove('disabled');
+            saveBtn.style.background = 'white';
+            saveBtn.style.color = 'black';
+        }
+        function disableSave() {
+            saveBtn.classList.add('disabled');
+            saveBtn.style.background = 'none';
+            saveBtn.style.color = 'white';
+        }
         back.addEventListener('click', function () {
             window.location.href = '/home';
+        })
+        saveBtn.addEventListener('click', function () {
+            const elements = document.querySelectorAll('.avatar-selected');
+            if ((username.value === '' || username.value === userSession.username) && (name.value === '' || name.value === userSession.name) && (elements[0].querySelector('img').value === userSession.imageurl)) {
+                alert('You Must Update to save changes');
+            }
+            else {
+                const userDetails = {
+                    username: userSession.username,
+                    newUsername: username.value === '' ? userSession.username : username.value,
+                    newName: name.value === '' ? userSession.name : name.value,
+                    newImageUrl: elements[0].querySelector('img').value
+                };
+                // Make a POST request to the server
+                fetch('/updateUser', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userDetails)
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            // Handle successful response
+                            return response.json();
+                        } else {
+                            // Handle error response
+                            throw new Error('Failed to update user details');
+                        }
+                    })
+                    .then(data => {
+                        // Handle data returned by the server
+                        localStorage.setItem('drawdash_user', JSON.stringify({ username: userDetails.newUsername, imageurl: userDetails.newImageUrl, name: userDetails.newName }));
+                        username.placeholder = userDetails.newUsername;
+                        username.value = '';
+                        name.placeholder = userDetails.newName;
+                        name.value = '';
+                        get_username.textContent = userDetails.newUsername;
+                        user_image.src = userDetails.newImageUrl;
+                        alert(data.message);
+                    })
+                    .catch(error => {
+                        // Handle fetch errors
+                        console.error('Error:', error);
+                    });
+            }
         })
         document.getElementById('contribute').addEventListener('click', function () {
             banner.classList.add('pop-in')
@@ -125,6 +238,52 @@
                 window.location.href = '/play#contribute';
             }, 350);
         });
+        function getUserDetails(username) {
+            fetch('/getUserDetails', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({username: username})
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // Handle successful response
+                        return response.json();
+                    } else {
+                        // Handle error response
+                        throw new Error('Failed to update user details');
+                    }
+                })
+                .then(data => {
+                    if(data.data){
+                        const userDetails = data.data;
+                        const username = userDetails.username;
+                        const rewards = userDetails.rewards ? userDetails.rewards : 0;
+                        const name = userDetails.name ? userDetails.name : userDetails.username;
+                        const imageurl = userDetails.imageurl ? userDetails.imageurl : 'media/images/avatars/panda.svg';
+                        localStorage.setItem('drawdash_user', JSON.stringify({ username: username, imageurl: imageurl, name: name }));
+                        localStorage.setItem('drawdash_user_rewards', JSON.stringify({ rewards: rewards}));
+                        userSession = JSON.parse(localStorage.getItem('drawdash_user'));
+                        username.placeholder = username;
+                        username.value = '';
+                        name.placeholder = name;
+                        name.value = '';
+                        get_username.textContent = username;
+                        user_image.src = imageurl;
+                    }
+                })
+                .catch(error => {
+                    // Handle fetch errors
+                    console.error('Error:', error);
+                });
+        }
+        document.getElementById('logout').addEventListener('click', function(){
+            if(window.confirm('Do you really want to logout?')){
+                localStorage.clear();
+                window.location.href = '/'
+            }
+        })
     </script>
 </body>
 

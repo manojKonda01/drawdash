@@ -402,6 +402,7 @@ function soloPlay() {
                 }
                 $('#scoreboard').modal({ backdrop: 'static', keyboard: false });
                 $('#scoreboard').modal('show');
+                saveRewards(rewards)
                 reload = false;
             }
             console.log('All rounds completed!');
@@ -421,12 +422,12 @@ function soloPlay() {
         handlePlayerGuess(inputValue);
         $('#type_guess').val('');
     }
+    const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
     // Function to handle player's guess
     function handlePlayerGuess(guess) {
         const correct_audio = document.getElementById('correct_sound');
         // Check if the guess is correct
         const correctGuess = $('#hidden_word').val().toUpperCase() == guess.toUpperCase();
-        const userSession = JSON.parse(localStorage.getItem('drawdash_user'));
         var listItem = document.createElement('li');
         const chatList = document.getElementById('chat_list');
 
@@ -500,9 +501,38 @@ function soloPlay() {
             $('#scoreboard').modal({ backdrop: 'static', keyboard: false })
             $('#scoreboard').modal('show');
             console.log('Drawing process completed!');
+            saveRewards(rewards);
             reload = false;
             // You can add any additional logic here when the total duration is reached
         }, totalTime);
+    }
+    function saveRewards(rewards){
+        const oldRewards = parseInt(JSON.parse(localStorage.getItem('drawdash_user_rewards')).rewards);
+        fetch('/updateRewards', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({username: userSession.username, newRewards: parseInt(rewards)})
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Handle successful response
+                    return response.json();
+                } else {
+                    // Handle error response
+                    throw new Error('Failed to update user details');
+                }
+            })
+            .then(data => {
+                // Handle data returned by the server
+                console.log(oldRewards, rewards, oldRewards + parseInt(rewards));
+                localStorage.setItem('drawdash_user_rewards', JSON.stringify({ rewards: oldRewards + parseInt(rewards)}));
+            })
+            .catch(error => {
+                // Handle fetch errors
+                console.error('Error:', error);
+            });
     }
     // Function to draw lines step by step
     function drawLinesStepByStep(drawingData) {
@@ -591,6 +621,7 @@ function joinCreatedRoom(roomID, isHost = false) {
 
     const start_audio = document.getElementById('start_sound');
     const end_audio = document.getElementById('end_sound');
+    $('.loader').addClass('d-none');
     socket.emit('joinRoom', roomID, playerName, playerImage, isHost);
     $('#room_id').text(roomID);
 
@@ -637,13 +668,30 @@ function joinCreatedRoom(roomID, isHost = false) {
     socket.on('playerLeft', (players) => {
         updatePlayersList(players);
     })
+    socket.on('preRound', (word) => {
+        canvas.removeEventListener('mousedown', startDrawing);
+        canvas.removeEventListener('mousemove', draw);
+        canvas.removeEventListener('mouseup', stopDrawing);
+        canvas.removeEventListener('mouseout', stopDrawing);
+
+        canvas.removeEventListener('touchstart', handleTouchStart, false);
+        canvas.removeEventListener('touchmove', handleTouchMove, false);
+        canvas.removeEventListener('touchend', handleTouchEnd, false);
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas;
+        const wordContainer = document.getElementById('wordContainer');
+        wordContainer.innerHTML = '';
+        wordContainer.textContent = 'Answer is: ' + word;
+    })
     socket.on('endGame', (roomID, players) => {
+        $('.loader-wrapper').addClass('d-none');
         if ($('#sound_off').hasClass('d-none')) {
             end_audio.play();
         }
+        document.getElementById('timer').textContent = 0;
         $('#leaderboard').modal({ backdrop: 'static', keyboard: false });
         $('#leaderboard').modal('show');
         updateLeaderBoard(players);
+        socket.emit('closeGame', roomID);
     })
     $('#room_start_btn').click(function () {
         socket.emit('startGame', roomID);
@@ -651,9 +699,13 @@ function joinCreatedRoom(roomID, isHost = false) {
             start_audio.play();
         }
     })
-    socket.on('newRound', (drawerId) => {
+    socket.on('newRound', (drawerId, drawerName) => {
+        const wordContainer = document.getElementById('wordContainer');
+        wordContainer.innerHTML = '';
         $("#private_rules").modal('hide');
         $('.game-container').removeClass('d-none');
+        $('.loader-wrapper').addClass('d-none');
+        $('.hide-for-both').addClass('d-none');
         // Clear the canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (socket.id === drawerId) {
@@ -662,6 +714,7 @@ function joinCreatedRoom(roomID, isHost = false) {
             $('.brush-container').removeClass('d-none');
             $('.brush-container').addClass('d-flex flex-column align-items-center justify-content-center');
             $('#typebox').addClass('d-none');
+            $('.hide-for-guesser').removeClass('d-none');
 
             canvas.addEventListener('mousedown', startDrawing);
             canvas.addEventListener('mousemove', draw);
@@ -675,8 +728,9 @@ function joinCreatedRoom(roomID, isHost = false) {
         }
         else {
             $('#random_word_modal').modal('hide');
-            // $('#start_guessing').text('Player is Choosing a Word to Draw');
-            // $('.loader-wrapper').removeClass('d-none');
+            $('#start_guessing').text(`${drawerName} is Choosing a Word to Draw`);
+            $('.loader-wrapper').removeClass('d-none');
+            $('.hide-for-guesser').addClass('d-none');
 
             // Disable drawing for non-current drawers
             $('.brush-container').addClass('d-none');
@@ -694,7 +748,28 @@ function joinCreatedRoom(roomID, isHost = false) {
     });
     $('#word_start').click(function () {
         const word = $('.random-word-btn.selected').val();
-        socket.emit('currentWord', roomID, word);
+        if (word) {
+            socket.emit('currentWord', roomID, word);
+        }
+    })
+    function createStars(n) {
+        let stars = '';
+        for (let i = 0; i < n; i++) {
+            stars += '*';
+        }
+        return stars;
+    }
+    socket.on('drawerChoseWord', (roomID, drawerId, wordLength) => {
+        $('.loader-wrapper').addClass('d-none');
+        if (socket.id === drawerId) {
+            // $('.loader-wrapper').addClass('d-none');
+        }
+        else {
+            displayWord(createStars(wordLength));
+        }
+    })
+    socket.on('roundTime', (timer) => {
+        updateRoundTimer(timer);
     })
     // BEGIN: functions to handle drawing using touch on mobile phones or touch screen devices 
     function handleTouchStart(e) {
@@ -814,7 +889,13 @@ function joinCreatedRoom(roomID, isHost = false) {
             };
             img.src = history[historyIndex];
         }
+        else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
     }
+    $('#undo').click(function () {
+        undo();
+    })
     function redo() {
         if (historyIndex < history.length - 1) {
             historyIndex++;
@@ -826,6 +907,22 @@ function joinCreatedRoom(roomID, isHost = false) {
             img.src = history[historyIndex];
         }
     }
+    $('#redo').click(function () {
+        redo();
+    })
+    $('#clear').click(function () {
+        const canvas = document.getElementById('canva_board');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawingData = [];
+        socket.emit('clear', roomID);
+    });
+    socket.on('clear', () => {
+        const canvas = document.getElementById('canva_board');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawingData = [];
+    })
     // Listen for 'drawing' event from other players
     socket.on('drawing', ({ startX, startY, endX, endY, color, lineWidth, isErasing }) => {
         drawLine(startX, startY, endX, endY, color, lineWidth, isErasing);
@@ -836,9 +933,10 @@ function joinCreatedRoom(roomID, isHost = false) {
     $('#submit_guess_icon').click(function (event) {
         checkGuess(event);
     })
-    function checkGuess(k) {
+    function checkGuess() {
         event.preventDefault();
         const inputValue = $('#type_guess').val()
+        console.log(inputValue);
         socket.emit('checkGuess', socket.id, roomID, playerName, playerImage, inputValue);
         $('#type_guess').val('');
     }
@@ -849,6 +947,7 @@ function joinCreatedRoom(roomID, isHost = false) {
         listItem.classList.add('chat-item', 'py-1');
         imageSrc = playerImage;
         const img = `<img src=${imageSrc} alt='user-image'></img>`;
+        console.log(sentGuess);
         if (sentGuess === 'correct') {
             if ($('#sound_off').hasClass('d-none')) {
                 correct_audio.play();
@@ -862,6 +961,27 @@ function joinCreatedRoom(roomID, isHost = false) {
         chatList.appendChild(listItem);
         chatList.scrollTop = chatList.scrollHeight;
     })
+
+    function displayWord(word) {
+        const wordContainer = document.getElementById('wordContainer');
+        wordContainer.innerHTML = ''; // Clear previous content
+        // Iterate over each letter in the word
+        for (let i = 0; i < word.trim().length; i++) {
+            // Create a span element for the letter
+            const letterSpan = document.createElement('span');
+            //   letterSpan.textContent = word[i];
+            letterSpan.classList.add('letter'); // Add the letter class
+
+            // Append the letter span to the word container
+            wordContainer.appendChild(letterSpan);
+        }
+    }
+}
+function updateRoundTimer(timer) {
+    const timerDisplay = document.getElementById('timer');
+    timerDisplay.classList.add('countdown');
+    document.getElementById('timer').textContent = timer; // Update the timer display
+
 }
 function updateLeaderBoard(players) {
     $('#leaderboard_count').text(players.length);
@@ -875,7 +995,7 @@ function updateLeaderBoard(players) {
                 </td>
                 <td><p class='m-0'>${player.gameScore}</p></td>
                 <td class='d-flex align-items-center'>
-                    <p class='m-0'>${player.gameScore + player.guessCount*10}</p>
+                    <p class='m-0'>${player.gameScore + player.guessCount * 10}</p>
                     <img src="media/images/rewards.png" alt="rewards-img" width="24" height="24" class="ms-1">
                 </td>
             `;
@@ -919,220 +1039,6 @@ function updateCountdownTimer(countdownTime) {
     countdownTimerElement.textContent = formattedTime;
 }
 
-function joinRoom() {
-    let success = false;
-    success = true;
-    if (success) {
-        $('#private_rules').modal('hide');
-        $('.game-container').removeClass('d-none');
-    }
-    const socket = io();
-    roomID = document.getElementById('roomID').value;
-    playerName = userSession.username;
-
-    socket.emit('joinRoom', roomID, playerName, playerImage, false);
-    // Listen for the 'startRound' event from the server
-
-    // Event listeners for drawing actions
-    let isDrawing = false;
-    let lastX = 0;
-    let lastY = 0;
-    // let currentDrawerId;
-
-    let isErasing = false;
-
-    let history = [''];
-    let drawingData = []; // Array to store drawing data
-    let historyIndex = -1;
-    // Receive the word from the server and display it in the canvas
-    socket.on('newRound', (drawerId) => {
-
-        // Clear the canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (socket.id === drawerId) {
-            // to draw on mouse events
-            generateRandomWords();
-
-            $('.brush-container').removeClass('d-none');
-            $('.brush-container').addClass('d-flex flex-column align-items-center justify-content-center');
-            $('#typebox').addClass('d-none');
-
-            socket.emit('currentWord', roomID, $('.random-word-btn.selected').val());
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
-
-            // to draw on touch events
-            canvas.addEventListener('touchstart', handleTouchStart, false);
-            canvas.addEventListener('touchmove', handleTouchMove, false);
-            canvas.addEventListener('touchend', handleTouchEnd, false);
-        }
-        else {
-            // Disable drawing for non-current drawers
-            $('.brush-container').addClass('d-none');
-            $('.brush-container').removeClass('d-flex flex-column align-items-center justify-content-center');
-            $('#typebox').removeClass('d-none');
-            canvas.removeEventListener('mousedown', startDrawing);
-            canvas.removeEventListener('mousemove', draw);
-            canvas.removeEventListener('mouseup', stopDrawing);
-            canvas.removeEventListener('mouseout', stopDrawing);
-
-            canvas.removeEventListener('touchstart', handleTouchStart, false);
-            canvas.removeEventListener('touchmove', handleTouchMove, false);
-            canvas.removeEventListener('touchend', handleTouchEnd, false);
-        }
-    });
-
-    // BEGIN: functions to handle drawing using touch on mobile phones or touch screen devices 
-    function handleTouchStart(e) {
-        e.preventDefault();
-        const touch = e.touches[0];
-        lastX = touch.clientX - canvas.getBoundingClientRect().left;
-        lastY = touch.clientY - canvas.getBoundingClientRect().top;
-        startDrawing(e);
-    }
-
-    function handleTouchMove(e) {
-        e.preventDefault();
-        if (!isDrawing) return;
-        const touch = e.touches[0];
-        const startX = lastX;
-        const startY = lastY;
-        // const endX = touch.pageX - canvas.offsetLeft;
-        // const endY = touch.pageY - canvas.offsetTop;
-        const endX = touch.clientX - canvas.getBoundingClientRect().left;
-        const endY = touch.clientY - canvas.getBoundingClientRect().top;
-        const color = $('#colorValue').val();
-        const lineWidth = document.getElementById('brushSize').value;
-        drawLine(startX, startY, endX, endY, color, lineWidth, isErasing);
-        socket.emit('drawing', { startX, startY, endX, endY, color, lineWidth, isErasing, roomID });
-        [lastX, lastY] = [endX, endY];
-    }
-
-    // END: functions to handle drawing using touch on mobile phones or touch screen devices 
-    function handleTouchEnd(e) {
-        e.preventDefault();
-        stopDrawing();
-    }
-    // Function to start drawing
-    function startDrawing(e) {
-        isDrawing = true;
-        [lastX, lastY] = [e.offsetX, e.offsetY];
-    }
-    // Function to draw
-    function draw(e) {
-        if (!isDrawing) return; // stop the function if the player should not draw
-        const startX = lastX;
-        const startY = lastY;
-        const endX = e.offsetX;
-        const endY = e.offsetY;
-        const color = $('#colorValue').val();
-        const lineWidth = document.getElementById('brushSize').value;
-        drawLine(startX, startY, endX, endY, color, lineWidth, isErasing);
-        socket.emit('drawing', { startX, startY, endX, endY, color, lineWidth, isErasing, roomID });
-        [lastX, lastY] = [endX, endY];
-    }
-    // Function to draw a line on the canvas
-    function drawLine(startX, startY, endX, endY, color, lineWidth, isErasing) {
-        const canvas = document.getElementById('canva_board');
-        const ctx = canvas.getContext('2d');
-        ctx.strokeStyle = isErasing ? '#FFFFFF' : color;
-        ctx.lineJoin = 'round';
-        ctx.lineCap = 'round';
-        // Start a new path
-        ctx.beginPath();
-
-        // Set the line style
-        ctx.lineWidth = lineWidth;
-
-        // Move to the starting point
-        ctx.moveTo(startX, startY);
-
-        // Draw a line to the ending point
-        ctx.lineTo(endX, endY);
-
-        // Stroke the line
-        ctx.stroke();
-    }
-
-    // Function to stop drawing
-    function stopDrawing(event) {
-        if (isDrawing) {
-            ctx.closePath();
-            if (!event.type.includes('mouseout') || !event.type.includes('touchend')) {
-                saveDrawing();
-            }
-            isDrawing = false;
-        }
-    }
-
-    $('#eraser').click(function () {
-        isErasing = true;
-        $('#eraser svg path').css('fill', '#3498db');
-        $('#eraser').css('border', '1px solid #3498db');
-
-        $('#paint svg path').css('fill', '#d9d9d9');
-        $('#paint').css('border', '1px solid #d9d9d9');
-    })
-    $('#paint').click(() => {
-        isErasing = false;
-        $('#eraser svg path').css('fill', '#d9d9d9');
-        $('#eraser').css('border', '1px solid #d9d9d9');
-
-        $('#paint svg path').css('fill', '#3498db');
-        $('#paint').css('border', '1px solid #3498db');
-    })
-
-    function saveDrawing() {
-        if (historyIndex < history.length - 1) {
-            history = history.slice(0, historyIndex + 1);
-        }
-        history.push(canvas.toDataURL());
-        historyIndex++;
-    }
-
-    function undo() {
-        if (historyIndex > 0) {
-            historyIndex--;
-            const img = new Image();
-            img.onload = function () {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-            };
-            img.src = history[historyIndex];
-        }
-    }
-    function redo() {
-        if (historyIndex < history.length - 1) {
-            historyIndex++;
-            const img = new Image();
-            img.onload = function () {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-            };
-            img.src = history[historyIndex];
-        }
-    }
-    // Listen for 'drawing' event from other players
-    socket.on('drawing', ({ startX, startY, endX, endY, color, lineWidth, isErasing }) => {
-        drawLine(startX, startY, endX, endY, color, lineWidth, isErasing);
-    });
-
-    // Receive and display guess results from server
-    socket.on('guessResult', ({ playerName, playerImage, guess }) => {
-        if (isCorrect) {
-            // If the guess is correct, display a message to all players
-            alert(`${playerName}'s guess "${guess}" is correct!`);
-        } else {
-            // If the guess is incorrect, display the guess to all players
-            const guessDisplay = document.getElementById('guessDisplay');
-            const newGuessElement = document.createElement('div');
-            newGuessElement.textContent = `${playerName}: ${guess}`;
-            guessDisplay.appendChild(newGuessElement);
-        }
-    });
-}
 
 // Add an event listener for the beforeunload event
 window.addEventListener('beforeunload', function (event) {

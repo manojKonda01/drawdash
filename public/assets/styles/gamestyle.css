@@ -114,14 +114,14 @@ body {
 #sound_off,
 .setting-img,
 #settings,
-#contribute {
+#contribute, #logout{
     cursor: pointer;
 }
 
-/* #contribute:hover{
+#logout p:hover{
     color: black;
     background: white;
-} */
+}
 .modal-title,
 .modal-footer {
     font-family: 'sports-world';
@@ -243,7 +243,12 @@ canvas {
     left: 50%;
     transform: translateX(-50%);
 }
-
+#undo{
+    margin-right: 24px;
+}
+#redo{
+    margin-left: 24px;
+}
 .word-container {
     display: flex;
     align-items: center;
@@ -453,18 +458,23 @@ canvas {
 .avatar-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 1.5rem;
+    gap: 1rem;
     align-items: stretch;
     justify-content: center;
 }
-
+.avatar-main-container{
+    border-radius: 50%;
+    border: 1px solid transparent;
+}
 .avatar-container {
     border-radius: 50%;
     /* Make it a circle */
     background-color: white;
     /* White background */
 }
-
+.avatar-selected{
+    border: 1px solid white !important;
+}
 .icon-selected {
     position: absolute;
     top: 0;
@@ -681,6 +691,12 @@ th, td {
 th {
     background-color: #f2f2f2;
 }
+.rewards-container{
+    font-family: 'sports-world';
+    background: white;
+    color: black;
+    border-radius: 10px;
+}
 @media (max-width: 767px) {
     body {
         background-image: url('/media/images/floor.png'), url('/media/images/pd_background.svg');
@@ -739,7 +755,6 @@ th {
     .back-home svg g {
         fill: black;
     }
-
     #undo,
     #redo {
         border: 1px solid white;
@@ -749,6 +764,10 @@ th {
     #undo svg path,
     #redo svg path {
         fill: white;
+    }
+    .avatar-img{
+        width: 40px !important;
+        height: 40px !important;
     }
 }
 

@@ -14,7 +14,7 @@ const io = socketIo(server);
 const bodyParser = require('body-parser');
 
 
-const { connectToMongoDB, insertDrawingData, getRandomDrawingData, getCountRandomDrawingData, registerUser, googleSignIn } = require('./DB')
+const { connectToMongoDB, insertDrawingData, getRandomDrawingData, getCountRandomDrawingData, registerUser, googleSignIn, updateUserDetails, updateUserRewards, getUserDetails} = require('./DB')
 
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -61,6 +61,56 @@ app.post('/googlesignin', async (req, res) => {
     try {
         const { username, name, imageurl } = req.body;
         const result = await googleSignIn(username, name, imageurl);
+        if (result.success) {
+            res.status(200).json(result);
+        }
+        else {
+            res.status(500).json(result);
+        }
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+})
+// api to update user
+app.post('/updateUser', async (req, res) => {
+    try {
+        const { username , newUsername, newName, newImageUrl} = req.body;
+        const result = await updateUserDetails(username , newUsername, newName, newImageUrl);
+        if (result.success) {
+            res.status(200).json(result);
+        }
+        else {
+            res.status(500).json(result);
+        }
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// api to update rewards
+app.post('/updateRewards', async (req, res) => {
+    try {
+        const { username , newRewards} = req.body;
+        const result = await updateUserRewards(username , newRewards);
+        if (result.success) {
+            res.status(200).json(result);
+        }
+        else {
+            res.status(500).json(result);
+        }
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+})
+
+// api to update rewards
+app.post('/getUserDetails', async (req, res) => {
+    try {
+        const { username } = req.body;
+        const result = await getUserDetails(username);
         if (result.success) {
             res.status(200).json(result);
         }
@@ -148,15 +198,15 @@ app.post('/createRoom', (req, res) => {
     activeRooms[roomID] = room;
 
     // Schedule expiration timer for 15 minutes
-    setTimeout(() => {
-        // Check if the room is still active
-        if (activeRooms[roomID]) {
-            // Room has expired, remove it from active rooms
-            delete activeRooms[roomID];
-            // Notify clients that the room has expired
-            io.to(roomID).emit('roomExpired');
-        }
-    }, 15 * 60 * 1000); // 15 minutes in milliseconds
+    // setTimeout(() => {
+    //     // Check if the room is still active
+    //     if (activeRooms[roomID]) {
+    //         // Room has expired, remove it from active rooms
+    //         delete activeRooms[roomID];
+    //         // Notify clients that the room has expired
+    //         io.to(roomID).emit('roomExpired');
+    //     }
+    // }, 15 * 60 * 1000); // 15 minutes in milliseconds
 
     // Send the room ID back to the client
     res.json({ roomID });
@@ -251,14 +301,39 @@ function selectDrawer(roomID) {
     return players[drawerIndex];
 }
 
-let roundTimer;
-let bonusScore = 0;
-let roundInterval;
+let roundTimer = {};
+let bonusScore = {};
+let roundInterval = {};
 
+function drawerSelectWord(roomID, word) {
+    if (activeRooms.hasOwnProperty(roomID)) {
+        activeRooms[roomID].currentWord = word;
+        if (activeRooms[roomID].players) {
+            const isDrawerId = activeRooms[roomID].players.filter(player => player.isDrawer).map(player => player.id);
+            io.to(roomID).emit('drawerChoseWord', roomID, isDrawerId[0], word.length);
+        }
+    }
+    else {
+        // Emit 'noSuchRoom' event to the client
+        io.to(roomID).emit('noSuchRoom');
+    }
+}
+let preRoundInterval = {};
+function preRoundFunction(roomID){
+    if (activeRooms.hasOwnProperty(roomID)) {
+        const word = activeRooms[roomID].currentWord;
+        io.to(roomID).emit('preRound', word);
+        preRoundInterval[roomID] = setTimeout(() => startNewRound(roomID), 2000);
+    }
+    else {
+        // Emit 'noSuchRoom' event to the client
+        io.to(roomID).emit('noSuchRoom');
+    }
+}
 // Function to start a new round in a room
 function startNewRound(roomID) {
     if (activeRooms.hasOwnProperty(roomID)) {
-        bonusScore = 0;
+        bonusScore[roomID] = 0;
         // Select a drawer for the next round
         const room = activeRooms[roomID];
         const currentRound = room.currentRound || 0; // Get the current round count or default to 0
@@ -269,36 +344,43 @@ function startNewRound(roomID) {
             if (drawer) {
                 const drawerIndex = activeRooms[roomID].players.findIndex(player => player.id === drawer.id);
 
-                if(activeRooms[roomID].players){
+                if (activeRooms[roomID].players) {
                     for (let i = 0; i < activeRooms[roomID].players.length; i++) {
-                        if(i == drawerIndex){
+                        if (i == drawerIndex) {
                             activeRooms[roomID].players[i].isDrawer = true;
                         }
-                        else{
+                        else {
                             activeRooms[roomID].players[i].isDrawer = false;
                         }
                         activeRooms[roomID].players[i].isCorrect = false;
                     }
                 }
                 const roundTime = room.roundTime;
-                bonusScore = parseInt(roundTime);
-                io.to(roomID).emit('newRound', drawer.id);
+                bonusScore[roomID] = parseInt(roundTime);
+                io.to(roomID).emit('newRound', drawer.id, drawer.name);
                 room.currentDrawer = drawer.id;
                 activeRooms[roomID].currentDrawer = drawer.id;
                 activeRooms[roomID].currentWord = '***';
                 room.currentRound = currentRound + 1; // Increment the current round count
                 // Start next round after timeout
-                roundInterval = setInterval(eachRoundTime, 1000);
-                roundTimer = setTimeout(() => {
-                    startNewRound(roomID);
-                    clearInterval(roundInterval);
+                function updateTimer(){
+                    bonusScore[roomID]--;
+                    if (bonusScore[roomID] < 0) {
+                        clearInterval(roundInterval[roomID]); // Stop the timer when it reaches 120 seconds
+                    }
+                    io.to(roomID).emit('roundTime', bonusScore[roomID]);
+                }
+                roundInterval[roomID] = setInterval(updateTimer, 1000);
+                roundTimer[roomID] = setTimeout(() => {
+                    preRoundFunction(roomID);
+                    // startNewRound(roomID);
+                    clearInterval(roundInterval[roomID]);
                 }, roundTime * 1000); // Replace ROUND_TIMEOUT with the desired timeout value
             }
         } else {
             // If all rounds have been completed, end the game
             activeRooms[roomID].gameStarted = false;
-            clearInterval(roundInterval);
-            console.log(activeRooms[roomID].players);
+            clearInterval(roundInterval[roomID]);
             io.to(roomID).emit('endGame', roomID, activeRooms[roomID].players);
         }
     }
@@ -306,9 +388,6 @@ function startNewRound(roomID) {
         // Emit 'noSuchRoom' event to the client
         io.to(roomID).emit('noSuchRoom');
     }
-}
-function eachRoundTime() {
-    bonusScore--;
 }
 const maxPlayers = 8;
 const minPlayers = 2;
@@ -349,14 +428,12 @@ io.on('connection', (socket) => {
         clearInterval(countdownInterval);
     })
     socket.on('currentWord', (roomID, currentWord) => {
-        if (activeRooms.hasOwnProperty(roomID)) {
-            activeRooms[roomID].currentWord = currentWord;
-        }
-        else {
-            // Emit 'noSuchRoom' event to the client
-            socket.emit('noSuchRoom');
-        }
+        drawerSelectWord(roomID, currentWord);
     })
+    socket.on('clear', (roomID) => {
+        // Broadcast clear event to all clients in the room except the drawer
+        socket.to(roomID).emit('clear');
+    });
     socket.on('joinRandomRoom', () => {
         const roomId = joinRandomRoom(socket.id);
         socket.join(roomId);
@@ -364,9 +441,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('drawing', ({ startX, startY, endX, endY, color, lineWidth, isErasing, roomID }) => {
-        if (activeRooms[roomID].currentDrawer === socket.id) {
-            // If the sender is the current drawer, broadcast the drawing event.
-            socket.to(roomID).emit('drawing', { startX, startY, endX, endY, color, lineWidth, isErasing });
+        if (activeRooms[roomID]) {
+            if (activeRooms[roomID].currentDrawer === socket.id) {
+                // If the sender is the current drawer, broadcast the drawing event.
+                socket.to(roomID).emit('drawing', { startX, startY, endX, endY, color, lineWidth, isErasing });
+            }
         }
     });
 
@@ -378,14 +457,14 @@ io.on('connection', (socket) => {
             console.log(correctWord, guess);
             const isCorrect = guess.toLowerCase() === correctWord.toLowerCase();
             const sentGuess = isCorrect ? 'correct' : guess;
-            io.to(roomID).emit('guessResult', playerName, playerImage, sentGuess, bonusScore);
+            io.to(roomID).emit('guessResult', playerName, playerImage, sentGuess, bonusScore[roomID]);
             if (isCorrect) {
                 if (activeRooms[roomID].players) {
                     for (let i = 0; i < activeRooms[roomID].players.length; i++) {
                         if (activeRooms[roomID].players[i].id === id) {
                             activeRooms[roomID].players[i].isCorrect = true;
                             activeRooms[roomID].players[i].guessCount++;
-                            activeRooms[roomID].players[i].gameScore += parseInt(bonusScore)
+                            activeRooms[roomID].players[i].gameScore += parseInt(bonusScore[roomID])
                             // break; // Exit the loop once the match is found
                         }
                         if (activeRooms[roomID].players[i].id === activeRooms[roomID].currentDrawer) {
@@ -393,15 +472,16 @@ io.on('connection', (socket) => {
                         }
                     }
                 }
-                // clearTimeout(roundTimer);
-                clearInterval(roundInterval);
+                // clearTimeout(roundTimer[roomID]);
+                clearInterval(roundInterval[roomID]);
                 // startNewRound(roomID);
             }
             const allCorrectExceptDrawer = activeRooms[roomID].players.every(player => player.isDrawer || player.isCorrect);
-            if(allCorrectExceptDrawer){
-                clearTimeout(roundTimer);
-                clearInterval(roundInterval);
-                startNewRound(roomID);
+            if (allCorrectExceptDrawer) {
+                clearTimeout(roundTimer[roomID]);
+                clearInterval(roundInterval[roomID]);
+                // startNewRound(roomID);
+                preRoundFunction(roomID);
             }
 
         }
@@ -423,13 +503,13 @@ io.on('connection', (socket) => {
                 }
                 if (room.gameStarted && room.players.length < minPlayers) {
                     activeRooms[roomID].gameStarted = false;
+                    clearInterval(roundInterval[roomID]);
                     io.to(roomID).emit('endGame', roomID, room.players);
                 }
                 break;
             }
         }
     });
-
 });
 
 // Function to start the countdown timer for a room
