@@ -7,10 +7,10 @@ DrawDash is a fun and interactive online drawing and guessing game where players
 2. [Features](#features)
 3. [Installation](#installation)
 4. [Usage](#usage)
-5. [How to Play](#howtoplay)
-6. [Technologies Used](#technologiesused)
+5. [How to Play](#how-to-play)
+6. [Technologies Used](#technologies-used)
 7. [Contributing](#contributing)
-8. [Demo](#livedemo)
+8. [Demo](#live-demo)
 9. [License](#license)
 
 ## Overview
