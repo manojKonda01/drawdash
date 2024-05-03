@@ -8,10 +8,11 @@ DrawDash is a fun and interactive online drawing and guessing game where players
 3. [Installation](#installation)
 4. [Usage](#usage)
 5. [How to Play](#how-to-play)
-6. [Technologies Used](#technologies-used)
-7. [Contributing](#contributing)
-8. [Demo](#live-demo)
-9. [License](#license)
+6. [Contributors](#contributors)
+7. [Technologies Used](#technologies-used)
+8. [Contributing](#contributing)
+9. [Demo](#live-demo)
+10. [License](#license)
 
 ## Overview
 Draw Dash is inspired by the classic game Pictionary, with added features and enhancements for a more enjoyable gaming experience. The platform offers various game modes, including Play Solo, Private Room, and Sketch Mode, catering to different player preferences and skill levels.
@@ -69,6 +70,26 @@ To install and run Draw Dash locally, follow these steps:
 6. **Game Controls:**
    - Use your mouse or touchscreen to draw on the canvas.
    - Type your guesses in the chatbox when it's your turn to guess.
+
+## Contributors
+
+Draw Dash is developed and maintained by the following contributors:
+
+- **Manoj Konda**
+  - Role: Lead Developer
+  - Contributions:
+    - Implemented Play Solo Mode functionality.
+    - Developed drawing features, including canvas interactions.
+    - Implemented server-side logic for game modes.
+    - Fixed bugs and optimized performance.
+
+- **Harika Paamu**
+  - Role: UI/UX Designer
+  - Contributions:
+    - Designed the user interface for all game modes.
+    - Implemented user registration and authentication.
+    - Created drawing data storage and retrieval functionality.
+    - Conducted testing and provided feedback for UI improvements.
 
 ## Technologies Used:
 
