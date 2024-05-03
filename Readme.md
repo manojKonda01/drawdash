@@ -7,8 +7,11 @@ DrawDash is a fun and interactive online drawing and guessing game where players
 2. [Features](#features)
 3. [Installation](#installation)
 4. [Usage](#usage)
-5. [Contributing](#contributing)
-6. [License](#license)
+5. [How to Play](#howtoplay)
+6. [Technologies Used](#technologiesused)
+7. [Contributing](#contributing)
+8. [Demo](#livedemo)
+9. [License](#license)
 
 ## Overview
 Draw Dash is inspired by the classic game Pictionary, with added features and enhancements for a more enjoyable gaming experience. The platform offers various game modes, including Play Solo, Private Room, and Sketch Mode, catering to different player preferences and skill levels.
