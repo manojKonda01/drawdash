@@ -73,23 +73,19 @@ To install and run Draw Dash locally, follow these steps:
 
 ## Contributors
 
-Draw Dash is developed and maintained by the following contributors:
+Draw Dash is developed and maintained by:
 
 - **Manoj Konda**
-  - Role: Lead Developer
-  - Contributions:
-    - Implemented Play Solo Mode functionality.
-    - Developed drawing features, including canvas interactions.
-    - Implemented server-side logic for game modes.
-    - Fixed bugs and optimized performance.
-
-- **Harika Paamu**
-  - Role: UI/UX Designer
+  - Role: Full Stack Developer
   - Contributions:
     - Designed the user interface for all game modes.
     - Implemented user registration and authentication.
     - Created drawing data storage and retrieval functionality.
     - Conducted testing and provided feedback for UI improvements.
+    - Implemented Play Solo Mode functionality.
+    - Developed drawing features, including canvas interactions.
+    - Implemented server-side logic for game modes.
+    - Fixed bugs and optimized performance.
 
 ## Technologies Used:
 
