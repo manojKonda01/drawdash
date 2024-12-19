@@ -102,7 +102,7 @@ We welcome contributions from the community to improve and enhance Draw Dash. To
    
 ## Live Demo:
 
-Play the game now at [DrawDash](https://drawdash-8abf16698101.herokuapp.com/)
+Play the game now at [DrawDash](https://drawdash-ea9dec95d151.herokuapp.com)
 If the above link does not work Play at [DrawDash](https://drawdash.onrender.com)
 
 ### License:
